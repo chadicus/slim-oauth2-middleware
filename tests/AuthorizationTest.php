@@ -7,6 +7,7 @@ namespace Chadicus\Slim\OAuth2\Middleware;
  *
  * @coversDefaultClass \Chadicus\Slim\OAuth2\Middleware\Authorization
  * @covers ::<private>
+ * @covers ::__construct
  */
 final class AuthorizationTest extends \PHPUnit_Framework_TestCase
 {
