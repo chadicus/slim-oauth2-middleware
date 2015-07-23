@@ -14,7 +14,7 @@
         "php": "~5.4 || ~7.0",
         "bshaffer/oauth2-server-php": "~1.7",
         "slim/slim": "~2.0",
-        "chadicus/slim-oauth2-http": "dev-master"
+        "chadicus/slim-oauth2-http": "~0.1"
     },
     "require-dev": {                                                                                                                             
         "phpunit/phpunit": "~4.0",                                                                                                               
@@ -26,5 +26,8 @@
     },
     "autoload-dev": {
         "psr-4": {"ChadicusTest\\Slim\\OAuth2\\Middleware\\" : "tests"}
+    },
+    "suggest": {                                                                                                                                 
+        "chadicus/slim-oauth2-routes": "Offers standard OAuth2 routes for slim applications"
     }
 }
