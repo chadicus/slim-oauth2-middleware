@@ -41,4 +41,14 @@ class Authorization extends \Slim\Middleware
             $this->next->call();
         }
     }
+
+    /**
+     * Allows this middleware to be used as a callable.
+     *
+     * @return void
+     */
+    public function __invoke()
+    {
+        $this->call();
+    }
 }
