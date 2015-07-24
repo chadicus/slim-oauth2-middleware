@@ -37,7 +37,8 @@ class Authorization extends \Slim\Middleware
 
         $this->app->token = $this->server->getResourceController()->getToken();
 
-        // this line is required for the application to proceed
-        $this->next->call();
+        if ($this->next !== null) {
+            $this->next->call();
+        }
     }
 }
