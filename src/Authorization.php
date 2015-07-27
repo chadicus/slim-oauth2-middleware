@@ -26,11 +26,14 @@ class Authorization extends \Slim\Middleware
     /**
      * Verify request contains valid access token.
      *
+     * @param array $scope Scopes required for authorization
+     *
      * @return void
      */
-    public function call()
+    public function call(array $scope = null)
     {
-        if (!$this->server->verifyResourceRequest(MessageBridge::newOauth2Request($this->app->request()))) {
+        $scope = empty($scope) ? null : implode(' ', $scope);
+        if (!$this->server->verifyResourceRequest(MessageBridge::newOauth2Request($this->app->request()), null, $scope)) {
             MessageBridge::mapResponse($this->server->getResponse(), $this->app->response());
             return;
         }
@@ -50,5 +53,20 @@ class Authorization extends \Slim\Middleware
     public function __invoke()
     {
         $this->call();
+    }
+
+    /**
+     * Returns a callable function to be used as a authorization middleware with a specified scope.
+     *
+     * @param array $scope Scopes require for authorization
+     *
+     * @return void
+     */
+    public function withRequiredScope(array $scope)
+    {
+        $auth = $this;
+        return function () use ($auth, $scope) {
+            return $auth->call($scope);
+        };
     }
 }
