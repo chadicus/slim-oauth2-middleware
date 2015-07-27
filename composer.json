@@ -1,6 +1,6 @@
 {
     "name": "chadicus/slim-oauth2-middleware",
-    "description": "Middleware for Using OAuth2 within a Slim Framework API",
+    "description": "OAuth2 middleware for use within a Slim Framework API",
     "keywords": ["slim", "oauth2", "middleware"],
     "authors": [                                                                                                                                 
         {                                                                                                                                        
