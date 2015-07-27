@@ -266,4 +266,63 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             $slim->response->body()
         );
     }
+
+    /**
+     * Verify Authorization is invokeable.
+     *
+     * @test
+     * @covers ::__invoke
+     *
+     * @return void
+     */
+    public function invoke()
+    {
+        $storage = new \OAuth2\Storage\Memory(
+            [
+                'access_tokens' => [
+                    'atokenvalue' => [
+                        'access_token' => 'atokenvalue',
+                        'client_id' => 'a client id',
+                        'user_id' => 'a user id',
+                        'expires' => 99999999900,
+                        'scope' => null,
+                    ],
+                ],
+            ]
+        );
+
+        $server = new \OAuth2\Server(
+            $storage,
+            [
+                'enforce_state'   => true,
+                'allow_implicit'  => false,
+                'access_lifetime' => 3600
+            ]
+        );
+
+        \Slim\Environment::mock(
+            [
+                'CONTENT_TYPE' => 'application/json',
+                'PATH_INFO' => '/foo',
+            ]
+        );
+
+        $slim = new \Slim\Slim();
+        $authorization = new Authorization($server);
+        $authorization->setApplication($slim);
+        $slim->get('/foo', $authorization, function() {});
+
+        $env = \Slim\Environment::getInstance();
+        $slim->request = new \Slim\Http\Request($env);
+        $slim->request->headers->set('Authorization', 'Bearer atokenvalue');
+        $slim->response = new \Slim\Http\Response();
+
+        ob_start();
+
+        $slim->run();
+
+        ob_get_clean();
+
+        $this->assertSame(200, $slim->response->status());
+    }
 }
