@@ -114,7 +114,9 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         );
 
         $slim = self::getSlimInstance();
-        $slim->get('/foo', function() {});
+        $slim->get('/foo', function() {
+            throw new \Exception('This will not get executed');
+        });
         $slim->add(new Authorization($server));
 
         $env = \Slim\Environment::getInstance();
@@ -122,7 +124,11 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $slim->request->headers->set('Authorization', 'Bearer atokenvalue');
         $slim->response = new \Slim\Http\Response();
 
-        $slim->run();
+        try {
+            $slim->run();
+        } catch (\Slim\Exception\Stop $e) {
+            //ignore this error
+        }
 
         $this->assertSame(401, $slim->response->status());
         $this->assertSame('{"error":"expired_token","error_description":"The access token provided has expired"}', $slim->response->body());
@@ -307,6 +313,54 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $slim->run();
 
         $this->assertSame(200, $slim->response->status());
+    }
+
+    /**
+     * Verify behavior of call without access token
+     *
+     * @test
+     * @covers ::call
+     *
+     * @return void
+     */
+    public function callNoTokenProvided()
+    {
+        $storage = new \OAuth2\Storage\Memory([]);
+
+        $server = new \OAuth2\Server(
+            $storage,
+            [
+                'enforce_state'   => true,
+                'allow_implicit'  => false,
+                'access_lifetime' => 3600
+            ]
+        );
+
+        \Slim\Environment::mock(
+            [
+                'CONTENT_TYPE' => 'application/json',
+                'PATH_INFO' => '/foo',
+            ]
+        );
+
+        $slim = self::getSlimInstance();
+        $authorization = new Authorization($server);
+        $authorization->setApplication($slim);
+        $slim->get('/foo', $authorization, function() {
+            echo json_encode(['success' => true]);
+        });
+
+        $env = \Slim\Environment::getInstance();
+        $slim->request = new \Slim\Http\Request($env);
+        $slim->response = new \Slim\Http\Response();
+
+        try {
+            $slim->run();
+        } catch (\Slim\Exception\Stop $e) {
+            //ignore this error
+        }
+
+        $this->assertSame(401, $slim->response->status());
     }
 
     /**

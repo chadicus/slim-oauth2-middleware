@@ -35,8 +35,8 @@ class Authorization extends \Slim\Middleware
         $scope = empty($scope) ? null : implode(' ', $scope);
         if (!$this->server->verifyResourceRequest(MessageBridge::newOauth2Request($this->app->request()), null, $scope)) {
             MessageBridge::mapResponse($this->server->getResponse(), $this->app->response());
-            return;
-        }
+            $this->app->stop();
+        } //@codeCoverageIgnore since stop() throws
 
         $this->app->token = $this->server->getResourceController()->getToken();
 
