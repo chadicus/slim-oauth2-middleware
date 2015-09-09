@@ -51,7 +51,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        $slim = new \Slim\Slim();
+        $slim = self::getSlimInstance();
         $slim->get('/foo', function() {});
         $slim->add(new Authorization($server));
 
@@ -113,8 +113,10 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        $slim = new \Slim\Slim();
-        $slim->get('/foo', function() {});
+        $slim = self::getSlimInstance();
+        $slim->get('/foo', function() {
+            throw new \Exception('This will not get executed');
+        });
         $slim->add(new Authorization($server));
 
         $env = \Slim\Environment::getInstance();
@@ -122,14 +124,13 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $slim->request->headers->set('Authorization', 'Bearer atokenvalue');
         $slim->response = new \Slim\Http\Response();
 
-        ob_start();
-
-        $slim->run();
-
-        $json = ob_get_clean();
+        try {
+            $slim->run();
+        } catch (\Slim\Exception\Stop $e) {
+            //ignore this error
+        }
 
         $this->assertSame(401, $slim->response->status());
-        $this->assertSame('{"error":"expired_token","error_description":"The access token provided has expired"}', $json);
         $this->assertSame('{"error":"expired_token","error_description":"The access token provided has expired"}', $slim->response->body());
     }
 
@@ -174,7 +175,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        $slim = new \Slim\Slim();
+        $slim = self::getSlimInstance();
         $authorization = new Authorization($server);
         $authorization->setApplication($slim);
         $slim->get('/foo', $authorization->withRequiredScope(['allowFoo']), function() {});
@@ -184,11 +185,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $slim->request->headers->set('Authorization', 'Bearer atokenvalue');
         $slim->response = new \Slim\Http\Response();
 
-        ob_start();
-
         $slim->run();
-
-        ob_get_clean();
 
         $this->assertSame(200, $slim->response->status());
         $this->assertSame(
@@ -244,7 +241,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        $slim = new \Slim\Slim();
+        $slim = self::getSlimInstance();
         $authorization = new Authorization($server);
         $authorization->setApplication($slim);
         $slim->get('/foo', $authorization->withRequiredScope(['allowFoo']), function() {});
@@ -254,11 +251,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $slim->request->headers->set('Authorization', 'Bearer atokenvalue');
         $slim->response = new \Slim\Http\Response();
 
-        ob_start();
-
         $slim->run();
-
-        ob_get_clean();
 
         $this->assertSame(403, $slim->response->status());
         $this->assertSame(
@@ -307,7 +300,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        $slim = new \Slim\Slim();
+        $slim = self::getSlimInstance();
         $authorization = new Authorization($server);
         $authorization->setApplication($slim);
         $slim->get('/foo', $authorization, function() {});
@@ -317,12 +310,92 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $slim->request->headers->set('Authorization', 'Bearer atokenvalue');
         $slim->response = new \Slim\Http\Response();
 
-        ob_start();
-
         $slim->run();
 
-        ob_get_clean();
-
         $this->assertSame(200, $slim->response->status());
+    }
+
+    /**
+     * Verify behavior of call without access token
+     *
+     * @test
+     * @covers ::call
+     *
+     * @return void
+     */
+    public function callNoTokenProvided()
+    {
+        $storage = new \OAuth2\Storage\Memory([]);
+
+        $server = new \OAuth2\Server(
+            $storage,
+            [
+                'enforce_state'   => true,
+                'allow_implicit'  => false,
+                'access_lifetime' => 3600
+            ]
+        );
+
+        \Slim\Environment::mock(
+            [
+                'CONTENT_TYPE' => 'application/json',
+                'PATH_INFO' => '/foo',
+            ]
+        );
+
+        $slim = self::getSlimInstance();
+        $authorization = new Authorization($server);
+        $authorization->setApplication($slim);
+        $slim->get('/foo', $authorization, function() {
+            echo json_encode(['success' => true]);
+        });
+
+        $env = \Slim\Environment::getInstance();
+        $slim->request = new \Slim\Http\Request($env);
+        $slim->response = new \Slim\Http\Response();
+
+        try {
+            $slim->run();
+        } catch (\Slim\Exception\Stop $e) {
+            //ignore this error
+        }
+
+        $this->assertSame(401, $slim->response->status());
+    }
+
+    /**
+     * Helper method to return a new instance of \Slim\Slim.
+     *
+     * @return \Slim\Slim
+     */
+    private static function getSlimInstance()
+    {
+        return new \Slim\Slim(
+            [
+                'version' => '0.0.0',
+                'debug' => false,
+                'mode'=> 'testing'
+            ]
+        );
+    }
+
+    /**
+     * Prepare each test.
+     *
+     * @return void
+     */
+    protected function setUp()
+    {
+        ob_start();
+    }
+
+    /**
+     * Perform cleanup after each test.
+     *
+     * @return void
+     */
+    protected function tearDown()
+    {
+        ob_end_clean();
     }
 }
