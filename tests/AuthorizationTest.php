@@ -51,7 +51,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        $slim = new \Slim\Slim();
+        $slim = self::getSlimInstance();
         $slim->get('/foo', function() {});
         $slim->add(new Authorization($server));
 
@@ -113,7 +113,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        $slim = new \Slim\Slim();
+        $slim = self::getSlimInstance();
         $slim->get('/foo', function() {});
         $slim->add(new Authorization($server));
 
@@ -174,7 +174,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        $slim = new \Slim\Slim();
+        $slim = self::getSlimInstance();
         $authorization = new Authorization($server);
         $authorization->setApplication($slim);
         $slim->get('/foo', $authorization->withRequiredScope(['allowFoo']), function() {});
@@ -244,7 +244,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        $slim = new \Slim\Slim();
+        $slim = self::getSlimInstance();
         $authorization = new Authorization($server);
         $authorization->setApplication($slim);
         $slim->get('/foo', $authorization->withRequiredScope(['allowFoo']), function() {});
@@ -307,7 +307,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        $slim = new \Slim\Slim();
+        $slim = self::getSlimInstance();
         $authorization = new Authorization($server);
         $authorization->setApplication($slim);
         $slim->get('/foo', $authorization, function() {});
@@ -324,5 +324,21 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         ob_get_clean();
 
         $this->assertSame(200, $slim->response->status());
+    }
+
+    /**
+     * Helper method to return a new instance of \Slim\Slim.
+     *
+     * @return \Slim\Slim
+     */
+    private static function getSlimInstance()
+    {
+        return new \Slim\Slim(
+            [
+                'version' => '0.0.0',
+                'debug' => false,
+                'mode'=> 'testing'
+            ]
+        );
     }
 }
