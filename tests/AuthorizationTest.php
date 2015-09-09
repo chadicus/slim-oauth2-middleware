@@ -122,14 +122,9 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $slim->request->headers->set('Authorization', 'Bearer atokenvalue');
         $slim->response = new \Slim\Http\Response();
 
-        ob_start();
-
         $slim->run();
 
-        $json = ob_get_clean();
-
         $this->assertSame(401, $slim->response->status());
-        $this->assertSame('{"error":"expired_token","error_description":"The access token provided has expired"}', $json);
         $this->assertSame('{"error":"expired_token","error_description":"The access token provided has expired"}', $slim->response->body());
     }
 
@@ -184,11 +179,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $slim->request->headers->set('Authorization', 'Bearer atokenvalue');
         $slim->response = new \Slim\Http\Response();
 
-        ob_start();
-
         $slim->run();
-
-        ob_get_clean();
 
         $this->assertSame(200, $slim->response->status());
         $this->assertSame(
@@ -254,11 +245,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $slim->request->headers->set('Authorization', 'Bearer atokenvalue');
         $slim->response = new \Slim\Http\Response();
 
-        ob_start();
-
         $slim->run();
-
-        ob_get_clean();
 
         $this->assertSame(403, $slim->response->status());
         $this->assertSame(
@@ -317,11 +304,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $slim->request->headers->set('Authorization', 'Bearer atokenvalue');
         $slim->response = new \Slim\Http\Response();
 
-        ob_start();
-
         $slim->run();
-
-        ob_get_clean();
 
         $this->assertSame(200, $slim->response->status());
     }
@@ -340,5 +323,25 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
                 'mode'=> 'testing'
             ]
         );
+    }
+
+    /**
+     * Prepare each test.
+     *
+     * @return void
+     */
+    protected function setUp()
+    {
+        ob_start();
+    }
+
+    /**
+     * Perform cleanup after each test.
+     *
+     * @return void
+     */
+    protected function tearDown()
+    {
+        ob_end_clean();
     }
 }
