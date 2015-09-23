@@ -5,26 +5,28 @@
         "This file is @generated automatically"
     ],
     "hash": "4c96c1c5fbf615391c2227d9df8bebdd",
+    "content-hash": "42f92d27a4defdfdf1333d76b056d540",
     "packages": [
         {
             "name": "bshaffer/oauth2-server-php",
-            "version": "v1.7.1",
+            "version": "v1.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/bshaffer/oauth2-server-php.git",
-                "reference": "7fde34c417e0f6542dfbe6aedf8132eb5575acfb"
+                "reference": "058c98f73209f9c49495e1799d32c035196fe8b8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bshaffer/oauth2-server-php/zipball/7fde34c417e0f6542dfbe6aedf8132eb5575acfb",
-                "reference": "7fde34c417e0f6542dfbe6aedf8132eb5575acfb",
+                "url": "https://api.github.com/repos/bshaffer/oauth2-server-php/zipball/058c98f73209f9c49495e1799d32c035196fe8b8",
+                "reference": "058c98f73209f9c49495e1799d32c035196fe8b8",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.9"
             },
             "suggest": {
-                "aws/aws-sdk-php": "Required to use the DynamoDB storage engine",
+                "aws/aws-sdk-php": "~2.8 is required to use the DynamoDB storage engine",
+                "firebase/php-jwt": "~2.2 is required to use JWT features",
                 "predis/predis": "Required to use the Redis storage engine",
                 "thobbs/phpcassa": "Required to use the Cassandra storage engine"
             },
@@ -52,20 +54,20 @@
                 "oauth",
                 "oauth2"
             ],
-            "time": "2015-05-21 20:07:03"
+            "time": "2015-09-18 18:05:10"
         },
         {
             "name": "chadicus/slim-oauth2-http",
-            "version": "v0.1.3",
+            "version": "v0.1.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/chadicus/slim-oauth2-http.git",
-                "reference": "6a8f90650bc4246bec82c9fbec74012b1126c6a1"
+                "reference": "27e7cc94c598486cbfd99510d96fee4a6000c521"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/chadicus/slim-oauth2-http/zipball/6a8f90650bc4246bec82c9fbec74012b1126c6a1",
-                "reference": "6a8f90650bc4246bec82c9fbec74012b1126c6a1",
+                "url": "https://api.github.com/repos/chadicus/slim-oauth2-http/zipball/27e7cc94c598486cbfd99510d96fee4a6000c521",
+                "reference": "27e7cc94c598486cbfd99510d96fee4a6000c521",
                 "shasum": ""
             },
             "require": {
@@ -106,7 +108,7 @@
                 "oauth2",
                 "slim"
             ],
-            "time": "2015-07-29 19:34:12"
+            "time": "2015-09-22 23:58:30"
         },
         {
             "name": "slim/slim",
@@ -607,16 +609,16 @@
         },
         {
             "name": "phpunit/php-token-stream",
-            "version": "1.4.6",
+            "version": "1.4.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-token-stream.git",
-                "reference": "3ab72c62e550370a6cd5dc873e1a04ab57562f5b"
+                "reference": "3144ae21711fb6cac0b1ab4cbe63b75ce3d4e8da"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-token-stream/zipball/3ab72c62e550370a6cd5dc873e1a04ab57562f5b",
-                "reference": "3ab72c62e550370a6cd5dc873e1a04ab57562f5b",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-token-stream/zipball/3144ae21711fb6cac0b1ab4cbe63b75ce3d4e8da",
+                "reference": "3144ae21711fb6cac0b1ab4cbe63b75ce3d4e8da",
                 "shasum": ""
             },
             "require": {
@@ -652,20 +654,20 @@
             "keywords": [
                 "tokenizer"
             ],
-            "time": "2015-08-16 08:51:00"
+            "time": "2015-09-15 10:49:45"
         },
         {
             "name": "phpunit/phpunit",
-            "version": "4.8.7",
+            "version": "4.8.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "dab2ada9e9a503d2ec3c32fe0fb59dea9bdd9dfa"
+                "reference": "73fad41adb5b7bc3a494bb930d90648df1d5e74b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/dab2ada9e9a503d2ec3c32fe0fb59dea9bdd9dfa",
-                "reference": "dab2ada9e9a503d2ec3c32fe0fb59dea9bdd9dfa",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/73fad41adb5b7bc3a494bb930d90648df1d5e74b",
+                "reference": "73fad41adb5b7bc3a494bb930d90648df1d5e74b",
                 "shasum": ""
             },
             "require": {
@@ -724,7 +726,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2015-09-14 06:57:22"
+            "time": "2015-09-20 12:56:44"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
