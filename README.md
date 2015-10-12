@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/chadicus/slim-oauth2-middleware.svg?branch=master)](https://travis-ci.org/chadicus/slim-oauth2-middleware)
 [![Scrutinizer Code Quality](http://img.shields.io/scrutinizer/g/chadicus/slim-oauth2-middleware.svg?style=flat)](https://scrutinizer-ci.com/g/chadicus/slim-oauth2-middleware/)
-[![Code Coverage](http://img.shields.io/coveralls/chadicus/slim-oauth2-middleware.svg?style=flat)](https://coveralls.io/r/chadicus/slim-oauth2-middleware)
+[![Coverage Status](https://coveralls.io/repos/chadicus/slim-oauth2-middleware/badge.svg?branch=master&service=github)](https://coveralls.io/github/chadicus/slim-oauth2-middleware?branch=master)
 
 [![Latest Stable Version](http://img.shields.io/packagist/v/chadicus/slim-oauth2-middleware.svg?style=flat)](https://packagist.org/packages/chadicus/slim-oauth2-middleware)
 [![Total Downloads](http://img.shields.io/packagist/dt/chadicus/slim-oauth2-middleware.svg?style=flat)](https://packagist.org/packages/chadicus/slim-oauth2-middleware)
