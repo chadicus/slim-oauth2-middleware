@@ -26,14 +26,16 @@ class Authorization extends \Slim\Middleware
     /**
      * Verify request contains valid access token.
      *
-     * @param array $scope Scopes required for authorization
+     * @param array $scopes Scopes required for authorization. $scopes can be given as an array of arrays. OR logic will
+     *                      use with each grouping. Example: Given ['superUser', ['basicUser', 'aPermission']], the
+     *                      request will be verified if the request token has 'superUser' scope OR 'basicUser' and
+     *                      'aPermission' as its scope
      *
      * @return void
      */
-    public function call(array $scope = null)
+    public function call(array $scopes = [null])
     {
-        $scope = empty($scope) ? null : implode(' ', $scope);
-        if (!$this->server->verifyResourceRequest(MessageBridge::newOauth2Request($this->app->request()), null, $scope)) {
+        if (!$this->verify($scopes)) {
             MessageBridge::mapResponse($this->server->getResponse(), $this->app->response());
             $this->app->stop();
         } //@codeCoverageIgnore since stop() throws
@@ -43,6 +45,28 @@ class Authorization extends \Slim\Middleware
         if ($this->next !== null) {
             $this->next->call();
         }
+    }
+
+    /**
+     * Helper method to verify a resource request, allowing return early on success cases
+     *
+     * @param array $scopes Scopes required for authorization
+     *
+     * @return boolean True if the request is verified, otherwise false
+     */
+    private function verify(array $scopes = [null])
+    {
+        foreach ($scopes as $scope) {
+            if (is_array($scope)) {
+                $scope = implode(' ', $scope);
+            }
+
+            if ($this->server->verifyResourceRequest(MessageBridge::newOauth2Request($this->app->request()), null, $scope)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -58,15 +82,15 @@ class Authorization extends \Slim\Middleware
     /**
      * Returns a callable function to be used as a authorization middleware with a specified scope.
      *
-     * @param array $scope Scopes require for authorization
+     * @param array $scopes Scopes require for authorization
      *
-     * @return void
+     * @return callable
      */
-    public function withRequiredScope(array $scope)
+    public function withRequiredScope(array $scopes)
     {
         $auth = $this;
-        return function () use ($auth, $scope) {
-            return $auth->call($scope);
+        return function () use ($auth, $scopes) {
+            return $auth->call($scopes);
         };
     }
 }

@@ -364,6 +364,75 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Verify call with scopes using OR logic
+     *
+     * @test
+     * @covers ::call
+     *
+     * @return void
+     */
+    public function callWithEitherScope()
+    {
+        $storage = new \OAuth2\Storage\Memory(
+            [
+                'access_tokens' => [
+                    'atokenvalue' => [
+                        'access_token' => 'atokenvalue',
+                        'client_id' => 'a client id',
+                        'user_id' => 'a user id',
+                        'expires' => 99999999900,
+                        'scope' => 'basicUser withPermission anExtraScope',
+                    ],
+                ],
+            ]
+        );
+
+        $server = new \OAuth2\Server(
+            $storage,
+            [
+                'enforce_state'   => true,
+                'allow_implicit'  => false,
+                'access_lifetime' => 3600
+            ]
+        );
+
+        \Slim\Environment::mock(
+            [
+                'CONTENT_TYPE' => 'application/json',
+                'PATH_INFO' => '/foo',
+            ]
+        );
+
+        $slim = self::getSlimInstance();
+        $authorization = new Authorization($server);
+        $authorization->setApplication($slim);
+        $slim->get(
+            '/foo',
+            $authorization->withRequiredScope(['superUser', ['basicUser', 'withPermission']]),
+            function() {}
+        );
+
+        $env = \Slim\Environment::getInstance();
+        $slim->request = new \Slim\Http\Request($env);
+        $slim->request->headers->set('Authorization', 'Bearer atokenvalue');
+        $slim->response = new \Slim\Http\Response();
+
+        $slim->run();
+
+        $this->assertSame(200, $slim->response->status());
+        $this->assertSame(
+            [
+                'access_token' => 'atokenvalue',
+                'client_id' => 'a client id',
+                'user_id' => 'a user id',
+                'expires' => 99999999900,
+                'scope' => 'basicUser withPermission anExtraScope',
+            ],
+            $slim->token
+        );
+    }
+
+    /**
      * Helper method to return a new instance of \Slim\Slim.
      *
      * @return \Slim\Slim
