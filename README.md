@@ -1,6 +1,6 @@
 # Chadicus\Slim\OAuth2\Middleware
 
-[![Build Status](http://img.shields.io/travis/chadicus/slim-oauth2-middleware.svg?style=flat)](https://travis-ci.org/chadicus/slim-oauth2-middleware)
+[![Build Status](https://travis-ci.org/chadicus/slim-oauth2-middleware.svg?branch=master)](https://travis-ci.org/chadicus/slim-oauth2-middleware)
 [![Scrutinizer Code Quality](http://img.shields.io/scrutinizer/g/chadicus/slim-oauth2-middleware.svg?style=flat)](https://scrutinizer-ci.com/g/chadicus/slim-oauth2-middleware/)
 [![Code Coverage](http://img.shields.io/coveralls/chadicus/slim-oauth2-middleware.svg?style=flat)](https://coveralls.io/r/chadicus/slim-oauth2-middleware)
 
