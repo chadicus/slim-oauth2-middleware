@@ -42,4 +42,58 @@ With a checkout of the code get [Composer](http://getcomposer.org) in your PATH 
 ```sh
 ./composer install
 ./vendor/bin/phpunit
+```
 
+##Example Usage
+
+Simple example for using the authorization middleware.
+
+```php
+use Chadicus\Slim\OAuth2\Middleware;
+use OAuth2\Server;
+use OAuth2\Storage;
+use OAuth2\GrantType;
+use Slim\Slim;
+
+//set up storage for oauth2 server
+$storage = new Storage\Memory(
+    [
+        'client_credentials' => [
+            'testClientId' => [
+                'client_id' => 'chadicus-app',
+                'client_secret' => 'password',
+            ],
+        ],
+    ]
+);
+
+// create the oauth2 server
+$server = new Server(
+    $storage,
+    [
+        'access_lifetime' => 3600,
+    ],
+    [
+        new GrantType\ClientCredentials($storage),
+    ]
+);
+
+// create the authorization middlware
+$authorization = new Middleware\Authorization($server);
+
+$app = new Slim();
+
+//Assumes token endpoints available for creating access tokens
+
+$app->get('foos', $authorization, function () {
+    //return all foos, no scope required
+});
+
+$app->get('foos/id', $authorization->withRequiredScope(['superUser', ['basicUser', 'canViewFoos']]), function ($id) {
+    //return details for a foo, requires superUser scope OR basicUser with canViewFoos scope
+});
+
+$app->post('foos', $authorization->withRequiredScope(['superUser']), function () {
+    //Create a new foo, requires superUser scope
+});
+```
