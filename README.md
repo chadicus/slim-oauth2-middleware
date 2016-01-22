@@ -16,7 +16,7 @@ Middleware for Using OAuth2 within a Slim Framework API
 
 ## Requirements
 
-Chadicus\Slim\OAuth2\Middleware requires PHP 5.4 (or later).
+Chadicus\Slim\OAuth2\Middleware requires PHP 5.5 (or later).
 
 ##Composer
 To add the library as a local, per-project dependency use [Composer](http://getcomposer.org)! Simply add a dependency on
