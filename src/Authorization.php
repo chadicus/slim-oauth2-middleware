@@ -4,6 +4,9 @@ namespace Chadicus\Slim\OAuth2\Middleware;
 use OAuth2;
 use Chadicus\Slim\OAuth2\Http\MessageBridge;
 
+/**
+ * Slim Middleware to handle OAuth2 Authorization.
+ */
 class Authorization extends \Slim\Middleware
 {
     /**
@@ -29,8 +32,7 @@ class Authorization extends \Slim\Middleware
      * @param array $scopes Scopes required for authorization. $scopes can be given as an array of arrays. OR logic will
      *                      use with each grouping. Example: Given ['superUser', ['basicUser', 'aPermission']], the
      *                      request will be verified if the request token has 'superUser' scope OR 'basicUser' and
-     *                      'aPermission' as its scope
-     *
+     *                      'aPermission' as its scope.
      * @return void
      */
     public function call(array $scopes = [null])
@@ -50,7 +52,7 @@ class Authorization extends \Slim\Middleware
     /**
      * Helper method to verify a resource request, allowing return early on success cases
      *
-     * @param array $scopes Scopes required for authorization
+     * @param array $scopes Scopes required for authorization.
      *
      * @return boolean True if the request is verified, otherwise false
      */
@@ -61,7 +63,8 @@ class Authorization extends \Slim\Middleware
                 $scope = implode(' ', $scope);
             }
 
-            if ($this->server->verifyResourceRequest(MessageBridge::newOauth2Request($this->app->request()), null, $scope)) {
+            $oauth2Request = MessageBridge::newOauth2Request($this->app->request());
+            if ($this->server->verifyResourceRequest($oauth2Request, null, $scope)) {
                 return true;
             }
         }
@@ -82,7 +85,7 @@ class Authorization extends \Slim\Middleware
     /**
      * Returns a callable function to be used as a authorization middleware with a specified scope.
      *
-     * @param array $scopes Scopes require for authorization
+     * @param array $scopes Scopes require for authorization.
      *
      * @return callable
      */

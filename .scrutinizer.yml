@@ -4,12 +4,15 @@ filter:
         - 'tests/*'
 before_commands:
     - 'composer install --prefer-source'
+checks:
+    php:
+        custom_coding_standard:
+            git_repository: 'https://github.com/chadicus/coding-standard'
+            git_version: '971fac1625463a72df0034fbfdd263561f2ccb4f'
+            ruleset_path: 'Chadicus/ruleset.xml'
 tools:
     php_analyzer: true
     php_mess_detector: true
-    php_code_sniffer:
-        config:
-            standard: PSR2
     sensiolabs_security_checker: true
     php_loc:
         excluded_dirs:

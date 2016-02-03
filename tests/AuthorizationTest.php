@@ -12,6 +12,13 @@ namespace Chadicus\Slim\OAuth2\Middleware;
 final class AuthorizationTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * Empty function to be used within tests.
+     *
+     * @var callable
+     */
+    private static $emptyFunction;
+
+    /**
      * Verify basic behavior of call()
      *
      * @test
@@ -38,8 +45,8 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $server = new \OAuth2\Server(
             $storage,
             [
-                'enforce_state'   => true,
-                'allow_implicit'  => false,
+                'enforce_state' => true,
+                'allow_implicit' => false,
                 'access_lifetime' => 3600
             ]
         );
@@ -52,7 +59,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         );
 
         $slim = self::getSlimInstance();
-        $slim->get('/foo', function() {});
+        $slim->get('/foo', self::$emptyFunction);
         $slim->add(new Authorization($server));
 
         $env = \Slim\Environment::getInstance();
@@ -80,6 +87,8 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
      * @covers ::call
      *
      * @return void
+     *
+     * @throws \Exception Thrown only if /foo route is executed.
      */
     public function callExpiredToken()
     {
@@ -114,7 +123,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         );
 
         $slim = self::getSlimInstance();
-        $slim->get('/foo', function() {
+        $slim->get('/foo', function () {
             throw new \Exception('This will not get executed');
         });
         $slim->add(new Authorization($server));
@@ -126,12 +135,16 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
 
         try {
             $slim->run();
-        } catch (\Slim\Exception\Stop $e) {
+        } catch (\Exception $e) {
             //ignore this error
+            $this->assertInstanceOf('\Slim\Exception\Stop', $e);
         }
 
         $this->assertSame(401, $slim->response->status());
-        $this->assertSame('{"error":"expired_token","error_description":"The access token provided has expired"}', $slim->response->body());
+        $this->assertSame(
+            '{"error":"expired_token","error_description":"The access token provided has expired"}',
+            $slim->response->body()
+        );
     }
 
     /**
@@ -178,7 +191,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $slim = self::getSlimInstance();
         $authorization = new Authorization($server);
         $authorization->setApplication($slim);
-        $slim->get('/foo', $authorization->withRequiredScope(['allowFoo']), function() {});
+        $slim->get('/foo', $authorization->withRequiredScope(['allowFoo']), self::$emptyFunction);
 
         $env = \Slim\Environment::getInstance();
         $slim->request = new \Slim\Http\Request($env);
@@ -244,7 +257,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $slim = self::getSlimInstance();
         $authorization = new Authorization($server);
         $authorization->setApplication($slim);
-        $slim->get('/foo', $authorization->withRequiredScope(['allowFoo']), function() {});
+        $slim->get('/foo', $authorization->withRequiredScope(['allowFoo']), self::$emptyFunction);
 
         $env = \Slim\Environment::getInstance();
         $slim->request = new \Slim\Http\Request($env);
@@ -255,7 +268,8 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame(403, $slim->response->status());
         $this->assertSame(
-            '{"error":"insufficient_scope","error_description":"The request requires higher privileges than provided by the access token"}',
+            '{"error":"insufficient_scope","error_description":"The request requires higher privileges than provided '
+            . 'by the access token"}',
             $slim->response->body()
         );
     }
@@ -303,7 +317,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $slim = self::getSlimInstance();
         $authorization = new Authorization($server);
         $authorization->setApplication($slim);
-        $slim->get('/foo', $authorization, function() {});
+        $slim->get('/foo', $authorization, self::$emptyFunction);
 
         $env = \Slim\Environment::getInstance();
         $slim->request = new \Slim\Http\Request($env);
@@ -346,7 +360,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $slim = self::getSlimInstance();
         $authorization = new Authorization($server);
         $authorization->setApplication($slim);
-        $slim->get('/foo', $authorization, function() {
+        $slim->get('/foo', $authorization, function () {
             echo json_encode(['success' => true]);
         });
 
@@ -356,8 +370,8 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
 
         try {
             $slim->run();
-        } catch (\Slim\Exception\Stop $e) {
-            //ignore this error
+        } catch (\Exception $e) {
+            $this->assertInstanceOf('\Slim\Exception\Stop', $e);
         }
 
         $this->assertSame(401, $slim->response->status());
@@ -409,7 +423,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $slim->get(
             '/foo',
             $authorization->withRequiredScope(['superUser', ['basicUser', 'withPermission']]),
-            function() {}
+            self::$emptyFunction
         );
 
         $env = \Slim\Environment::getInstance();
@@ -455,6 +469,9 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
+        //empty function to use within tests
+        self::$emptyFunction = function () {
+        };
         ob_start();
     }
 
