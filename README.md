@@ -28,7 +28,7 @@ To add the library as a local, per-project dependency use [Composer](http://getc
 ```json
 {
     "require": {
-        "chadicus/slim-oauth2-middleware": "dev-master"
+        "chadicus/slim-oauth2-middleware": "~1.0"
     }
 }
 ```
