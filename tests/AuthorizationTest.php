@@ -2,6 +2,12 @@
 
 namespace Chadicus\Slim\OAuth2\Middleware;
 
+use ArrayObject;
+use Slim;
+use Slim\Http;
+use OAuth2;
+use OAuth2\Storage;
+
 /**
  * Unit tests for the \Chadicus\Slim\OAuth2\Middleware\Authorization class.
  *
@@ -12,23 +18,16 @@ namespace Chadicus\Slim\OAuth2\Middleware;
 final class AuthorizationTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * Empty function to be used within tests.
-     *
-     * @var callable
-     */
-    private static $emptyFunction;
-
-    /**
-     * Verify basic behavior of call()
+     * Verify basic behavior of __invoke()
      *
      * @test
-     * @covers ::call
+     * @covers ::__invoke
      *
      * @return void
      */
-    public function call()
+    public function invoke()
     {
-        $storage = new \OAuth2\Storage\Memory(
+        $storage = new Storage\Memory(
             [
                 'access_tokens' => [
                     'atokenvalue' => [
@@ -42,7 +41,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        $server = new \OAuth2\Server(
+        $server = new OAuth2\Server(
             $storage,
             [
                 'enforce_state' => true,
@@ -51,23 +50,22 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        \Slim\Environment::mock(
-            [
-                'CONTENT_TYPE' => 'application/json',
-                'PATH_INFO' => '/foo',
-            ]
-        );
+        $uri = Http\Uri::createFromString('localhost:888/foos');
+        $headers = new Http\Headers();
+        $headers->set('Authorization', 'Bearer atokenvalue');
 
-        $slim = self::getSlimInstance();
-        $slim->get('/foo', self::$emptyFunction);
-        $slim->add(new Authorization($server));
+        $request = new Http\Request('PATCH', $uri, $headers, [], [], new Http\RequestBody(), []);
 
-        $env = \Slim\Environment::getInstance();
-        $slim->request = new \Slim\Http\Request($env);
-        $slim->request->headers->set('Authorization', 'Bearer atokenvalue');
-        $slim->response = new \Slim\Http\Response();
+        $container = new ArrayObject();
 
-        $slim->run();
+        $middleware = new Authorization($server, $container);
+
+        $next = function ($request, $response) {
+            return $response;
+        };
+
+        $middleware($request, new Http\Response(), $next);
+
         $this->assertSame(
             [
                 'access_token' => 'atokenvalue',
@@ -76,23 +74,21 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
                 'expires' => 99999999900,
                 'scope' => null,
             ],
-            $slim->token
+            $container['token']
         );
     }
 
     /**
-     * Verify behavior of call with expired access token
+     * Verify behavior of __invoke() with expired access token.
      *
      * @test
-     * @covers ::call
+     * @covers ::__invoke
      *
      * @return void
-     *
-     * @throws \Exception Thrown only if /foo route is executed.
      */
-    public function callExpiredToken()
+    public function invokeExpiredToken()
     {
-        $storage = new \OAuth2\Storage\Memory(
+        $storage = new Storage\Memory(
             [
                 'access_tokens' => [
                     'atokenvalue' => [
@@ -106,7 +102,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        $server = new \OAuth2\Server(
+        $server = new OAuth2\Server(
             $storage,
             [
                 'enforce_state'   => true,
@@ -115,35 +111,24 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        \Slim\Environment::mock(
-            [
-                'CONTENT_TYPE' => 'application/json',
-                'PATH_INFO' => '/foo',
-            ]
-        );
+        $uri = Http\Uri::createFromString('localhost:888/foos');
+        $headers = new Http\Headers();
+        $headers->set('Authorization', 'Bearer atokenvalue');
 
-        $slim = self::getSlimInstance();
-        $slim->get('/foo', function () {
+        $request = new Http\Request('PATCH', $uri, $headers, [], [], new Http\RequestBody(), []);
+
+        $middleware = new Authorization($server, new ArrayObject);
+
+        $next = function () {
             throw new \Exception('This will not get executed');
-        });
-        $slim->add(new Authorization($server));
+        };
 
-        $env = \Slim\Environment::getInstance();
-        $slim->request = new \Slim\Http\Request($env);
-        $slim->request->headers->set('Authorization', 'Bearer atokenvalue');
-        $slim->response = new \Slim\Http\Response();
+        $response = $middleware($request, new Http\Response(), $next);
 
-        try {
-            $slim->run();
-        } catch (\Exception $e) {
-            //ignore this error
-            $this->assertInstanceOf('\Slim\Exception\Stop', $e);
-        }
-
-        $this->assertSame(401, $slim->response->status());
+        $this->assertSame(401, $response->getStatusCode());
         $this->assertSame(
             '{"error":"expired_token","error_description":"The access token provided has expired"}',
-            $slim->response->body()
+            (string)$response->getBody()
         );
     }
 
@@ -151,14 +136,14 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
      * Verify basic behaviour of withRequiredScope().
      *
      * @test
-     * @covers ::call
+     * @covers ::__invoke
      * @covers ::withRequiredScope
      *
      * @return void
      */
     public function withRequiredScope()
     {
-        $storage = new \OAuth2\Storage\Memory(
+        $storage = new Storage\Memory(
             [
                 'access_tokens' => [
                     'atokenvalue' => [
@@ -172,7 +157,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        $server = new \OAuth2\Server(
+        $server = new OAuth2\Server(
             $storage,
             [
                 'enforce_state'   => true,
@@ -181,26 +166,23 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        \Slim\Environment::mock(
-            [
-                'CONTENT_TYPE' => 'application/json',
-                'PATH_INFO' => '/foo',
-            ]
-        );
+        $uri = Http\Uri::createFromString('localhost:888/foos');
+        $headers = new Http\Headers();
+        $headers->set('Authorization', 'Bearer atokenvalue');
 
-        $slim = self::getSlimInstance();
-        $authorization = new Authorization($server);
-        $authorization->setApplication($slim);
-        $slim->get('/foo', $authorization->withRequiredScope(['allowFoo']), self::$emptyFunction);
+        $request = new Http\Request('PATCH', $uri, $headers, [], [], new Http\RequestBody(), []);
 
-        $env = \Slim\Environment::getInstance();
-        $slim->request = new \Slim\Http\Request($env);
-        $slim->request->headers->set('Authorization', 'Bearer atokenvalue');
-        $slim->response = new \Slim\Http\Response();
+        $container = new ArrayObject();
 
-        $slim->run();
+        $middleware = new Authorization($server, $container);
 
-        $this->assertSame(200, $slim->response->status());
+        $next = function ($request, $response) {
+            return $response;
+        };
+
+        $response = $middleware->withRequiredScope(['allowFoo'])->__invoke($request, new Http\Response(), $next);
+
+        $this->assertSame(200, $response->getStatusCode());
         $this->assertSame(
             [
                 'access_token' => 'atokenvalue',
@@ -209,7 +191,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
                 'expires' => 99999999900,
                 'scope' => 'allowFoo anotherScope',
             ],
-            $slim->token
+            $container['token']
         );
     }
 
@@ -217,14 +199,14 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
      * Verify behaviour of withRequiredScope() with insufficient scope.
      *
      * @test
-     * @covers ::call
+     * @covers ::__invoke
      * @covers ::withRequiredScope
      *
      * @return void
      */
     public function withRequiredScopeInsufficientScope()
     {
-        $storage = new \OAuth2\Storage\Memory(
+        $storage = new Storage\Memory(
             [
                 'access_tokens' => [
                     'atokenvalue' => [
@@ -238,7 +220,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        $server = new \OAuth2\Server(
+        $server = new OAuth2\Server(
             $storage,
             [
                 'enforce_state'   => true,
@@ -247,58 +229,41 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        \Slim\Environment::mock(
-            [
-                'CONTENT_TYPE' => 'application/json',
-                'PATH_INFO' => '/foo',
-            ]
-        );
+        $uri = Http\Uri::createFromString('localhost:888/foos');
+        $headers = new Http\Headers();
+        $headers->set('Authorization', 'Bearer atokenvalue');
 
-        $slim = self::getSlimInstance();
-        $authorization = new Authorization($server);
-        $authorization->setApplication($slim);
-        $slim->get('/foo', $authorization->withRequiredScope(['allowFoo']), self::$emptyFunction);
+        $request = new Http\Request('PATCH', $uri, $headers, [], [], new Http\RequestBody(), []);
 
-        $env = \Slim\Environment::getInstance();
-        $slim->request = new \Slim\Http\Request($env);
-        $slim->request->headers->set('Authorization', 'Bearer atokenvalue');
-        $slim->response = new \Slim\Http\Response();
+        $middleware = new Authorization($server, new ArrayObject(), ['allowFoo']);
 
-        $slim->run();
+        $next = function ($request, $response) {
+            throw new \Exception('This will not get executed');
+        };
 
-        $this->assertSame(403, $slim->response->status());
+        $response = $middleware($request, new Http\Response(), $next);
+
+        $this->assertSame(403, $response->getStatusCode());
         $this->assertSame(
             '{"error":"insufficient_scope","error_description":"The request requires higher privileges than provided '
             . 'by the access token"}',
-            $slim->response->body()
+            (string)$response->getBody()
         );
     }
 
     /**
-     * Verify Authorization is invokeable.
+     * Verify behavior of __invoke() without access token.
      *
      * @test
      * @covers ::__invoke
      *
      * @return void
      */
-    public function invoke()
+    public function invokeNoTokenProvided()
     {
-        $storage = new \OAuth2\Storage\Memory(
-            [
-                'access_tokens' => [
-                    'atokenvalue' => [
-                        'access_token' => 'atokenvalue',
-                        'client_id' => 'a client id',
-                        'user_id' => 'a user id',
-                        'expires' => 99999999900,
-                        'scope' => null,
-                    ],
-                ],
-            ]
-        );
+        $storage = new Storage\Memory([]);
 
-        $server = new \OAuth2\Server(
+        $server = new OAuth2\Server(
             $storage,
             [
                 'enforce_state'   => true,
@@ -307,87 +272,32 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        \Slim\Environment::mock(
-            [
-                'CONTENT_TYPE' => 'application/json',
-                'PATH_INFO' => '/foo',
-            ]
-        );
+        $uri = Http\Uri::createFromString('localhost:888/foos');
 
-        $slim = self::getSlimInstance();
-        $authorization = new Authorization($server);
-        $authorization->setApplication($slim);
-        $slim->get('/foo', $authorization, self::$emptyFunction);
+        $request = new Http\Request('PATCH', $uri, new Http\Headers(), [], [], new Http\RequestBody(), []);
 
-        $env = \Slim\Environment::getInstance();
-        $slim->request = new \Slim\Http\Request($env);
-        $slim->request->headers->set('Authorization', 'Bearer atokenvalue');
-        $slim->response = new \Slim\Http\Response();
+        $middleware = new Authorization($server, new ArrayObject());
 
-        $slim->run();
+        $next = function ($request, $response) {
+            throw new \Exception('This will not get executed');
+        };
 
-        $this->assertSame(200, $slim->response->status());
+        $response = $middleware($request, new Http\Response(), $next);
+
+        $this->assertSame(401, $response->getStatusCode());
     }
 
     /**
-     * Verify behavior of call without access token
+     * Verify __invoke() with scopes using OR logic
      *
      * @test
-     * @covers ::call
+     * @covers ::__invoke
      *
      * @return void
      */
-    public function callNoTokenProvided()
+    public function invokeWithEitherScope()
     {
-        $storage = new \OAuth2\Storage\Memory([]);
-
-        $server = new \OAuth2\Server(
-            $storage,
-            [
-                'enforce_state'   => true,
-                'allow_implicit'  => false,
-                'access_lifetime' => 3600
-            ]
-        );
-
-        \Slim\Environment::mock(
-            [
-                'CONTENT_TYPE' => 'application/json',
-                'PATH_INFO' => '/foo',
-            ]
-        );
-
-        $slim = self::getSlimInstance();
-        $authorization = new Authorization($server);
-        $authorization->setApplication($slim);
-        $slim->get('/foo', $authorization, function () {
-            echo json_encode(['success' => true]);
-        });
-
-        $env = \Slim\Environment::getInstance();
-        $slim->request = new \Slim\Http\Request($env);
-        $slim->response = new \Slim\Http\Response();
-
-        try {
-            $slim->run();
-        } catch (\Exception $e) {
-            $this->assertInstanceOf('\Slim\Exception\Stop', $e);
-        }
-
-        $this->assertSame(401, $slim->response->status());
-    }
-
-    /**
-     * Verify call with scopes using OR logic
-     *
-     * @test
-     * @covers ::call
-     *
-     * @return void
-     */
-    public function callWithEitherScope()
-    {
-        $storage = new \OAuth2\Storage\Memory(
+        $storage = new Storage\Memory(
             [
                 'access_tokens' => [
                     'atokenvalue' => [
@@ -401,7 +311,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        $server = new \OAuth2\Server(
+        $server = new OAuth2\Server(
             $storage,
             [
                 'enforce_state'   => true,
@@ -410,30 +320,23 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        \Slim\Environment::mock(
-            [
-                'CONTENT_TYPE' => 'application/json',
-                'PATH_INFO' => '/foo',
-            ]
-        );
+        $uri = Http\Uri::createFromString('localhost:888/foos');
+        $headers = new Http\Headers();
+        $headers->set('Authorization', 'Bearer atokenvalue');
 
-        $slim = self::getSlimInstance();
-        $authorization = new Authorization($server);
-        $authorization->setApplication($slim);
-        $slim->get(
-            '/foo',
-            $authorization->withRequiredScope(['superUser', ['basicUser', 'withPermission']]),
-            self::$emptyFunction
-        );
+        $request = new Http\Request('PATCH', $uri, $headers, [], [], new Http\RequestBody(), []);
 
-        $env = \Slim\Environment::getInstance();
-        $slim->request = new \Slim\Http\Request($env);
-        $slim->request->headers->set('Authorization', 'Bearer atokenvalue');
-        $slim->response = new \Slim\Http\Response();
+        $container = new ArrayObject();
 
-        $slim->run();
+        $middleware = new Authorization($server, $container, ['superUser', ['basicUser', 'withPermission']]);
 
-        $this->assertSame(200, $slim->response->status());
+        $next = function ($request, $response) {
+            return $response;
+        };
+
+        $response = $middleware($request, new Http\Response(), $next);
+
+        $this->assertSame(200, $response->getStatusCode());
         $this->assertSame(
             [
                 'access_token' => 'atokenvalue',
@@ -442,46 +345,69 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
                 'expires' => 99999999900,
                 'scope' => 'basicUser withPermission anExtraScope',
             ],
-            $slim->token
+            $container['token']
         );
     }
 
     /**
-     * Helper method to return a new instance of \Slim\Slim.
+     * Verify behavior of the middleware with empty scope
      *
-     * @return \Slim\Slim
+     * @test
+     * @covers ::__invoke
+     *
+     * @return void
      */
-    private static function getSlimInstance()
+    public function invokeWithEmptyScope()
     {
-        return new \Slim\Slim(
+        $storage = new Storage\Memory(
             [
-                'version' => '0.0.0',
-                'debug' => false,
-                'mode'=> 'testing'
+                'access_tokens' => [
+                    'atokenvalue' => [
+                        'access_token' => 'atokenvalue',
+                        'client_id' => 'a client id',
+                        'user_id' => 'a user id',
+                        'expires' => 99999999900,
+                        'scope' => null,
+                    ],
+                ],
             ]
         );
-    }
 
-    /**
-     * Prepare each test.
-     *
-     * @return void
-     */
-    protected function setUp()
-    {
-        //empty function to use within tests
-        self::$emptyFunction = function () {
+        $server = new OAuth2\Server(
+            $storage,
+            [
+                'enforce_state' => true,
+                'allow_implicit' => false,
+                'access_lifetime' => 3600
+            ]
+        );
+
+        $uri = Http\Uri::createFromString('localhost:888/foos');
+        $headers = new Http\Headers();
+        $headers->set('Authorization', 'Bearer atokenvalue');
+
+        $request = new Http\Request('PATCH', $uri, $headers, [], [], new Http\RequestBody(), []);
+
+        $container = new ArrayObject();
+
+        $middleware = new Authorization($server, $container, []);
+
+        $next = function ($request, $response) {
+            return $response;
         };
-        ob_start();
+
+        $middleware($request, new Http\Response(), $next);
+
+        $this->assertSame(
+            [
+                'access_token' => 'atokenvalue',
+                'client_id' => 'a client id',
+                'user_id' => 'a user id',
+                'expires' => 99999999900,
+                'scope' => null,
+            ],
+            $container['token']
+        );
     }
 
-    /**
-     * Perform cleanup after each test.
-     *
-     * @return void
-     */
-    protected function tearDown()
-    {
-        ob_end_clean();
-    }
 }
