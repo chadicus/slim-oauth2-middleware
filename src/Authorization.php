@@ -1,13 +1,18 @@
 <?php
 namespace Chadicus\Slim\OAuth2\Middleware;
 
+use ArrayAccess;
+use Chadicus\Slim\OAuth2\Http\RequestBridge;
+use Chadicus\Slim\OAuth2\Http\ResponseBridge;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use OAuth2;
-use Chadicus\Slim\OAuth2\Http\MessageBridge;
+use Slim;
 
 /**
  * Slim Middleware to handle OAuth2 Authorization.
  */
-class Authorization extends \Slim\Middleware
+class Authorization implements MiddlewareInterface
 {
     /**
      * OAuth2 Server
@@ -17,69 +22,67 @@ class Authorization extends \Slim\Middleware
     private $server;
 
     /**
-     * Create a new instance of the Authroization middleware
+     * Array of scopes required for authorization.
      *
-     * @param OAuth2\Server $server The configured OAuth2 server.
+     * @var array
      */
-    public function __construct(OAuth2\Server $server)
+    private $scopes;
+
+    /**
+     * Container for token.
+     *
+     * @var ArrayAccess
+     */
+    private $container;
+
+    /**
+     * Create a new instance of the Authroization middleware.
+     *
+     * @param OAuth2\Server $server    The configured OAuth2 server.
+     * @param ArrayAccess   $container A container object in which to store the token from the request.
+     * @param array         $scopes    Scopes required for authorization. $scopes can be given as an array of arrays. OR
+     *                                 logic will use with each grouping.  Example:
+     *                                 Given ['superUser', ['basicUser', 'aPermission']], the request will be verified
+     *                                 if the request token has 'superUser' scope OR 'basicUser' and 'aPermission' as
+     *                                 its scope.
+     */
+    public function __construct(OAuth2\Server $server, ArrayAccess $container, array $scopes = [])
     {
         $this->server = $server;
+        $this->container = $container;
+        $this->scopes = $scopes;
     }
 
     /**
-     * Verify request contains valid access token.
+     * Execute this middleware.
      *
-     * @param array $scopes Scopes required for authorization. $scopes can be given as an array of arrays. OR logic will
-     *                      use with each grouping. Example: Given ['superUser', ['basicUser', 'aPermission']], the
-     *                      request will be verified if the request token has 'superUser' scope OR 'basicUser' and
-     *                      'aPermission' as its scope.
-     * @return void
+     * @param  ServerRequestInterface $request  The PSR7 request.
+     * @param  ResponseInterface      $response The PSR7 response.
+     * @param  callable               $next     The Next middleware.
+     *
+     * @return Slim\Http\Response
      */
-    public function call(array $scopes = [null])
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
-        if (!$this->verify($scopes)) {
-            MessageBridge::mapResponse($this->server->getResponse(), $this->app->response());
-            $this->app->stop();
-        } //@codeCoverageIgnore since stop() throws
+        $oauth2Request = RequestBridge::toOAuth2($request);
 
-        $this->app->token = $this->server->getResourceController()->getToken();
-
-        if ($this->next !== null) {
-            $this->next->call();
+        $scopes = $this->scopes;
+        if (empty($scopes)) {
+            $scopes = [null]; //use at least 1 null scope
         }
-    }
 
-    /**
-     * Helper method to verify a resource request, allowing return early on success cases
-     *
-     * @param array $scopes Scopes required for authorization.
-     *
-     * @return boolean True if the request is verified, otherwise false
-     */
-    private function verify(array $scopes = [null])
-    {
         foreach ($scopes as $scope) {
             if (is_array($scope)) {
                 $scope = implode(' ', $scope);
             }
 
-            $oauth2Request = MessageBridge::newOauth2Request($this->app->request());
             if ($this->server->verifyResourceRequest($oauth2Request, null, $scope)) {
-                return true;
+                $this->container['token'] = $this->server->getResourceController()->getToken();
+                return $next($request, $response);
             }
         }
 
-        return false;
-    }
-
-    /**
-     * Allows this middleware to be used as a callable.
-     *
-     * @return void
-     */
-    public function __invoke()
-    {
-        $this->call();
+        return ResponseBridge::fromOAuth2($this->server->getResponse());
     }
 
     /**
@@ -87,13 +90,12 @@ class Authorization extends \Slim\Middleware
      *
      * @param array $scopes Scopes require for authorization.
      *
-     * @return callable
+     * @return Authorization
      */
     public function withRequiredScope(array $scopes)
     {
-        $auth = $this;
-        return function () use ($auth, $scopes) {
-            return $auth->call($scopes);
-        };
+        $clone = clone $this;
+        $clone->scopes = $scopes;
+        return $clone;
     }
 }

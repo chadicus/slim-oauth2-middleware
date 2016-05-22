@@ -15,11 +15,11 @@
 
 [![Documentation](https://img.shields.io/badge/reference-phpdoc-blue.svg?style=flat)](http://pholiophp.org/chadicus/slim-oauth2-middleware)
 
-Middleware for Using OAuth2 within a Slim Framework API
+Middleware for using [OAuth2 Server](http://bshaffer.github.io/oauth2-server-php-docs/) within a [Slim 3 Framework](http://www.slimframework.com/) API
 
 ## Requirements
 
-Chadicus\Slim\OAuth2\Middleware requires PHP 5.5 (or later).
+Chadicus\Slim\OAuth2\Middleware requires PHP 5.6 (or later).
 
 ##Composer
 To add the library as a local, per-project dependency use [Composer](http://getcomposer.org)! Simply add a dependency on
@@ -28,7 +28,7 @@ To add the library as a local, per-project dependency use [Composer](http://getc
 ```json
 {
     "require": {
-        "chadicus/slim-oauth2-middleware": "~1.0"
+        "chadicus/slim-oauth2-middleware": "~3.0"
     }
 }
 ```
@@ -53,10 +53,10 @@ Simple example for using the authorization middleware.
 
 ```php
 use Chadicus\Slim\OAuth2\Middleware;
-use OAuth2\Server;
+use OAuth2;
 use OAuth2\Storage;
 use OAuth2\GrantType;
-use Slim\Slim;
+use Slim;
 
 //set up storage for oauth2 server
 $storage = new Storage\Memory(
@@ -71,7 +71,7 @@ $storage = new Storage\Memory(
 );
 
 // create the oauth2 server
-$server = new Server(
+$server = new OAuth2\Server(
     $storage,
     [
         'access_lifetime' => 3600,
@@ -81,22 +81,29 @@ $server = new Server(
     ]
 );
 
-// create the authorization middlware
-$authorization = new Middleware\Authorization($server);
+//create the basic app
+$app = new Slim\App();
 
-$app = new Slim();
+// create the authorization middlware
+$authMiddleware = new Middleware\Authorization($server, $app->getContainer());
 
 //Assumes token endpoints available for creating access tokens
 
-$app->get('foos', $authorization, function () {
+$app->get('foos', function ($request, $response, $args) {
     //return all foos, no scope required
-});
+})->add($authMiddleware);
 
-$app->get('foos/id', $authorization->withRequiredScope(['superUser', ['basicUser', 'canViewFoos']]), function ($id) {
+$getRouteCallback = function ($request, $response, $id) {
     //return details for a foo, requires superUser scope OR basicUser with canViewFoos scope
-});
+};
 
-$app->post('foos', $authorization->withRequiredScope(['superUser']), function () {
+$app->get('foos/id', $getRouteCallback)->add($authMiddleware->withRequiredScope(['superUser', ['basicUser', 'canViewFoos']]));
+
+$postRouteCallback = function ($request, $response, $args) {
     //Create a new foo, requires superUser scope
-});
+};
+
+$app->post('foos', $postRouteCallback)->add($authMiddleware->withRequiredScope(['superUser']));
+
+$app->run();
 ```
