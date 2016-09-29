@@ -4,6 +4,7 @@ namespace Chadicus\Slim\OAuth2\Middleware;
 use ArrayAccess;
 use Chadicus\Slim\OAuth2\Http\RequestBridge;
 use Chadicus\Slim\OAuth2\Http\ResponseBridge;
+use Chadicus\Psr\Middleware\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use OAuth2;

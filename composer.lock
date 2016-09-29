@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "bff07534f7d06233bca0371fc52159a0",
-    "content-hash": "329b0d45af03c9655869abcb08965e2b",
+    "hash": "65416573e72777b0e3b62997dc96fbb6",
+    "content-hash": "1b836576b6f37a416ad10c0ea5e9764a",
     "packages": [
         {
             "name": "bshaffer/oauth2-server-php",
@@ -55,6 +55,51 @@
                 "oauth2"
             ],
             "time": "2015-09-18 18:05:10"
+        },
+        {
+            "name": "chadicus/psr-middleware",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/chadicus/psr-middleware.git",
+                "reference": "8a5a9b409bebba6a8feaddeea4766f7a0eca9214"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/chadicus/psr-middleware/zipball/8a5a9b409bebba6a8feaddeea4766f7a0eca9214",
+                "reference": "8a5a9b409bebba6a8feaddeea4766f7a0eca9214",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.6 || ^7.0",
+                "psr/http-message": "^1.0"
+            },
+            "require-dev": {
+                "chadicus/coding-standard": "^1.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Chadicus\\Psr\\Middleware\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Chad Gray",
+                    "email": "chadwickgray@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Foundational interface for PSR-7 middleware",
+            "keywords": [
+                "middleware",
+                "psr"
+            ],
+            "time": "2016-09-29 15:29:40"
         },
         {
             "name": "chadicus/slim-oauth2-http",
