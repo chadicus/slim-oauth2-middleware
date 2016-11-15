@@ -50,7 +50,7 @@ class Authorization implements MiddlewareInterface
     {
         $this->server = $server;
         $this->container = $container;
-        $this->scopes = $scopes;
+        $this->scopes = $this->formatScopes($scopes);
     }
 
     /**
@@ -65,17 +65,7 @@ class Authorization implements MiddlewareInterface
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
         $oauth2Request = RequestBridge::toOAuth2($request);
-
-        $scopes = $this->scopes;
-        if (empty($scopes)) {
-            $scopes = [null]; //use at least 1 null scope
-        }
-
-        foreach ($scopes as $scope) {
-            if (is_array($scope)) {
-                $scope = implode(' ', $scope);
-            }
-
+        foreach ($this->scopes as $scope) {
             if ($this->server->verifyResourceRequest($oauth2Request, null, $scope)) {
                 $this->container['token'] = $this->server->getResourceController()->getToken();
                 return $next($request, $response);
@@ -95,7 +85,32 @@ class Authorization implements MiddlewareInterface
     public function withRequiredScope(array $scopes)
     {
         $clone = clone $this;
-        $clone->scopes = $scopes;
+        $clone->scopes = $clone->formatScopes($scopes);
         return $clone;
+    }
+
+    /**
+     * Helper method to ensure given scopes are formatted properly.
+     *
+     * @param array $scopes Scopes required for authorization.
+     *
+     * @return array The formatted scopes array.
+     */
+    private function formatScopes(array $scopes)
+    {
+        if (empty($scopes)) {
+            return [null]; //use at least 1 null scope
+        }
+
+        array_walk(
+            $scopes,
+            function (&$scope) {
+                if (is_array($scope)) {
+                    $scope = implode(' ', $scope);
+                }
+            }
+        );
+
+        return $scopes;
     }
 }
