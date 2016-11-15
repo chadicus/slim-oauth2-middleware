@@ -8,7 +8,6 @@ use Chadicus\Psr\Middleware\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use OAuth2;
-use Slim;
 
 /**
  * Slim Middleware to handle OAuth2 Authorization.
@@ -61,7 +60,7 @@ class Authorization implements MiddlewareInterface
      * @param  ResponseInterface      $response The PSR7 response.
      * @param  callable               $next     The Next middleware.
      *
-     * @return Slim\Http\Response
+     * @return ResponseInterface
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {

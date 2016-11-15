@@ -3,10 +3,10 @@
 namespace Chadicus\Slim\OAuth2\Middleware;
 
 use ArrayObject;
-use Slim;
-use Slim\Http;
 use OAuth2;
 use OAuth2\Storage;
+use Zend\Diactoros\Response;
+use Zend\Diactoros\ServerRequest;
 
 /**
  * Unit tests for the \Chadicus\Slim\OAuth2\Middleware\Authorization class.
@@ -50,11 +50,9 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        $uri = Http\Uri::createFromString('localhost:888/foos');
-        $headers = new Http\Headers();
-        $headers->set('Authorization', 'Bearer atokenvalue');
-
-        $request = new Http\Request('PATCH', $uri, $headers, [], [], new Http\RequestBody(), []);
+        $uri = 'localhost:8888/foos';
+        $headers = ['Authorization' => ['Bearer atokenvalue']];
+        $request = new ServerRequest([], [], $uri, 'PATCH', 'php://input', $headers);
 
         $container = new ArrayObject();
 
@@ -64,7 +62,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             return $response;
         };
 
-        $middleware($request, new Http\Response(), $next);
+        $middleware($request, new Response(), $next);
 
         $this->assertSame(
             [
@@ -111,11 +109,9 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        $uri = Http\Uri::createFromString('localhost:888/foos');
-        $headers = new Http\Headers();
-        $headers->set('Authorization', 'Bearer atokenvalue');
-
-        $request = new Http\Request('PATCH', $uri, $headers, [], [], new Http\RequestBody(), []);
+        $uri = 'localhost:8888/foos';
+        $headers = ['Authorization' => ['Bearer atokenvalue']];
+        $request = new ServerRequest([], [], $uri, 'PATCH', 'php://input', $headers);
 
         $middleware = new Authorization($server, new ArrayObject);
 
@@ -123,7 +119,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             throw new \Exception('This will not get executed');
         };
 
-        $response = $middleware($request, new Http\Response(), $next);
+        $response = $middleware($request, new Response(), $next);
 
         $this->assertSame(401, $response->getStatusCode());
         $this->assertSame(
@@ -166,11 +162,9 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        $uri = Http\Uri::createFromString('localhost:888/foos');
-        $headers = new Http\Headers();
-        $headers->set('Authorization', 'Bearer atokenvalue');
-
-        $request = new Http\Request('PATCH', $uri, $headers, [], [], new Http\RequestBody(), []);
+        $uri = 'localhost:8888/foos';
+        $headers = ['Authorization' => ['Bearer atokenvalue']];
+        $request = new ServerRequest([], [], $uri, 'PATCH', 'php://input', $headers);
 
         $container = new ArrayObject();
 
@@ -180,7 +174,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             return $response;
         };
 
-        $response = $middleware->withRequiredScope(['allowFoo'])->__invoke($request, new Http\Response(), $next);
+        $response = $middleware->withRequiredScope(['allowFoo'])->__invoke($request, new Response(), $next);
 
         $this->assertSame(200, $response->getStatusCode());
         $this->assertSame(
@@ -229,11 +223,9 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        $uri = Http\Uri::createFromString('localhost:888/foos');
-        $headers = new Http\Headers();
-        $headers->set('Authorization', 'Bearer atokenvalue');
-
-        $request = new Http\Request('PATCH', $uri, $headers, [], [], new Http\RequestBody(), []);
+        $uri = 'localhost:8888/foos';
+        $headers = ['Authorization' => ['Bearer atokenvalue']];
+        $request = new ServerRequest([], [], $uri, 'PATCH', 'php://input', $headers);
 
         $middleware = new Authorization($server, new ArrayObject(), ['allowFoo']);
 
@@ -241,7 +233,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             throw new \Exception('This will not get executed');
         };
 
-        $response = $middleware($request, new Http\Response(), $next);
+        $response = $middleware($request, new Response(), $next);
 
         $this->assertSame(403, $response->getStatusCode());
         $this->assertSame(
@@ -272,9 +264,8 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        $uri = Http\Uri::createFromString('localhost:888/foos');
-
-        $request = new Http\Request('PATCH', $uri, new Http\Headers(), [], [], new Http\RequestBody(), []);
+        $uri = 'localhost:8888/foos';
+        $request = new ServerRequest([], [], $uri, 'PATCH', 'php://input', []);
 
         $middleware = new Authorization($server, new ArrayObject());
 
@@ -282,7 +273,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             throw new \Exception('This will not get executed');
         };
 
-        $response = $middleware($request, new Http\Response(), $next);
+        $response = $middleware($request, new Response(), $next);
 
         $this->assertSame(401, $response->getStatusCode());
     }
@@ -320,11 +311,9 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        $uri = Http\Uri::createFromString('localhost:888/foos');
-        $headers = new Http\Headers();
-        $headers->set('Authorization', 'Bearer atokenvalue');
-
-        $request = new Http\Request('PATCH', $uri, $headers, [], [], new Http\RequestBody(), []);
+        $uri = 'localhost:8888/foos';
+        $headers = ['Authorization' => ['Bearer atokenvalue']];
+        $request = new ServerRequest([], [], $uri, 'PATCH', 'php://input', $headers);
 
         $container = new ArrayObject();
 
@@ -334,7 +323,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             return $response;
         };
 
-        $response = $middleware($request, new Http\Response(), $next);
+        $response = $middleware($request, new Response(), $next);
 
         $this->assertSame(200, $response->getStatusCode());
         $this->assertSame(
@@ -382,11 +371,9 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        $uri = Http\Uri::createFromString('localhost:888/foos');
-        $headers = new Http\Headers();
-        $headers->set('Authorization', 'Bearer atokenvalue');
-
-        $request = new Http\Request('PATCH', $uri, $headers, [], [], new Http\RequestBody(), []);
+        $uri = 'localhost:8888/foos';
+        $headers = ['Authorization' => ['Bearer atokenvalue']];
+        $request = new ServerRequest([], [], $uri, 'PATCH', 'php://input', $headers);
 
         $container = new ArrayObject();
 
@@ -396,7 +383,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             return $response;
         };
 
-        $middleware($request, new Http\Response(), $next);
+        $middleware($request, new Response(), $next);
 
         $this->assertSame(
             [
