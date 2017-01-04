@@ -397,4 +397,65 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    /**
+     * Verify Content-Type header is added to response.
+     *
+     * @test
+     * @covers ::__invoke
+     *
+     * @return void
+     */
+    public function invokeAddsContentType()
+    {
+        $storage = new Storage\Memory([]);
+
+        $server = new OAuth2\Server(
+            $storage,
+            [
+                'enforce_state'   => true,
+                'allow_implicit'  => false,
+                'access_lifetime' => 3600
+            ]
+        );
+
+        $uri = 'localhost:8888/foos';
+        $request = new ServerRequest([], [], $uri, 'PATCH', 'php://input', []);
+
+        $middleware = new Authorization($server, new ArrayObject());
+
+        $next = function ($request, $response) {
+            throw new \Exception('This will not get executed');
+        };
+
+        $response = $middleware($request, new Response(), $next);
+
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
+    }
+
+    /**
+     * Verify Content-Type header remains unchanged if OAuth2 response contains the header.
+     *
+     * @test
+     * @covers ::__invoke
+     *
+     * @return void
+     */
+    public function invokeRetainsContentType()
+    {
+        $oauth2ServerMock = $this->getMockBuilder('\\OAuth2\\Server')->disableOriginalConstructor()->getMock();
+        //always return false on verify
+        $oauth2ServerMock->method('verifyResourceRequest')->willReturn(false);
+        //return a valid response with Content-Type
+        $oauth2ServerMock->method('getResponse')->willReturn(
+            new OAuth2\Response([], 400, ['Content-Type' => 'text/html'])
+        );
+
+        $middleware = new Authorization($oauth2ServerMock, new ArrayObject());
+        $next = function ($request, $response) {
+            throw new \Exception('This will not get executed');
+        };
+
+        $response = $middleware(new ServerRequest(), new Response(), $next);
+        $this->assertSame('text/html', $response->getHeaderLine('Content-Type'));
+    }
 }
