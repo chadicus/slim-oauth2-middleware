@@ -72,11 +72,13 @@ class Authorization implements MiddlewareInterface
             }
         }
 
-        /** @var OAuth2\Response $response */
-        $response = $this->server->getResponse();
-        $response->addHttpHeaders(['Content-Type' => 'application/json']);
-        
-        return ResponseBridge::fromOAuth2($response);
+        $response = ResponseBridge::fromOAuth2($this->server->getResponse());
+
+        if ($response->hasHeader('Content-Type')) {
+            return $response;
+        }
+
+        return $response->withHeader('Content-Type', 'application/json');
     }
 
     /**
