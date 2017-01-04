@@ -29,27 +29,18 @@ class Authorization implements MiddlewareInterface
     private $scopes;
 
     /**
-     * Container for token.
-     *
-     * @var ArrayAccess
-     */
-    private $container;
-
-    /**
      * Create a new instance of the Authroization middleware.
      *
      * @param OAuth2\Server $server    The configured OAuth2 server.
-     * @param ArrayAccess   $container A container object in which to store the token from the request.
      * @param array         $scopes    Scopes required for authorization. $scopes can be given as an array of arrays. OR
      *                                 logic will use with each grouping.  Example:
      *                                 Given ['superUser', ['basicUser', 'aPermission']], the request will be verified
      *                                 if the request token has 'superUser' scope OR 'basicUser' and 'aPermission' as
      *                                 its scope.
      */
-    public function __construct(OAuth2\Server $server, ArrayAccess $container, array $scopes = [])
+    public function __construct(OAuth2\Server $server, array $scopes = [])
     {
         $this->server = $server;
-        $this->container = $container;
         $this->scopes = $this->formatScopes($scopes);
     }
 
