@@ -58,7 +58,6 @@ class Authorization implements MiddlewareInterface
         $oauth2Request = RequestBridge::toOAuth2($request);
         foreach ($this->scopes as $scope) {
             if ($this->server->verifyResourceRequest($oauth2Request, null, $scope)) {
-                $this->container['token'] = $this->server->getResourceController()->getToken();
                 return $next($request, $response);
             }
         }
