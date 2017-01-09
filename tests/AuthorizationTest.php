@@ -458,4 +458,79 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $response = $middleware(new ServerRequest(), new Response(), $next);
         $this->assertSame('text/html', $response->getHeaderLine('Content-Type'));
     }
+
+    /**
+     * Ensure $container must be an instance of ArrayAccess or ContainerInterface.
+     *
+     * @test
+     * @covers ::__construct
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage $container does not implement \ArrayAccess or \Interop\Container\ContainerInterface
+     *
+     * @return void
+     */
+    public function constructWithInvalidContainer()
+    {
+        $oauth2ServerMock = $this->getMockBuilder('\\OAuth2\\Server')->disableOriginalConstructor()->getMock();
+        new Authorization($oauth2ServerMock, new \StdClass());
+    }
+
+    /**
+     * Verify middleware can use interop container.
+     *
+     * @test
+     * @covers ::__invoke
+     *
+     * @return void
+     */
+    public function invokeWithInteropContainer()
+    {
+        $storage = new Storage\Memory(
+            [
+                'access_tokens' => [
+                    'atokenvalue' => [
+                        'access_token' => 'atokenvalue',
+                        'client_id' => 'a client id',
+                        'user_id' => 'a user id',
+                        'expires' => 99999999900,
+                        'scope' => null,
+                    ],
+                ],
+            ]
+        );
+
+        $server = new OAuth2\Server(
+            $storage,
+            [
+                'enforce_state' => true,
+                'allow_implicit' => false,
+                'access_lifetime' => 3600
+            ]
+        );
+
+        $uri = 'localhost:8888/foos';
+        $headers = ['Authorization' => ['Bearer atokenvalue']];
+        $request = new ServerRequest([], [], $uri, 'PATCH', 'php://input', $headers);
+
+        $container = (new \DI\ContainerBuilder())->build();
+
+        $middleware = new Authorization($server, $container);
+
+        $next = function ($request, $response) {
+            return $response;
+        };
+
+        $middleware($request, new Response(), $next);
+
+        $this->assertSame(
+            [
+                'access_token' => 'atokenvalue',
+                'client_id' => 'a client id',
+                'user_id' => 'a user id',
+                'expires' => 99999999900,
+                'scope' => null,
+            ],
+            $container->get('token')
+        );
+    }
 }
