@@ -15,7 +15,8 @@
         "bshaffer/oauth2-server-php": "^1.8",
         "chadicus/slim-oauth2-http": "^3.1",
         "chadicus/psr-middleware": "^1.0",
-        "psr/http-message": "^1.0"
+        "psr/http-message": "^1.0",
+        "php-di/php-di": "^5.4"
     },
     "require-dev": {
         "zendframework/zend-diactoros": "^1.3",

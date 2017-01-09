@@ -4,31 +4,38 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "0c050c6b01270d1c63d8fd40ccd05f9d",
-    "content-hash": "412ef3202b662c6acc4a08809ea0642a",
+    "hash": "5a302cf6743f8c7c862aaf8dcfaeee91",
+    "content-hash": "16b85140c7c51c4da8ac968899d9e73f",
     "packages": [
         {
             "name": "bshaffer/oauth2-server-php",
-            "version": "v1.8.0",
+            "version": "v1.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/bshaffer/oauth2-server-php.git",
-                "reference": "058c98f73209f9c49495e1799d32c035196fe8b8"
+                "reference": "8856aed1a98d6da596ae3f9b8095b5c7a1581697"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bshaffer/oauth2-server-php/zipball/058c98f73209f9c49495e1799d32c035196fe8b8",
-                "reference": "058c98f73209f9c49495e1799d32c035196fe8b8",
+                "url": "https://api.github.com/repos/bshaffer/oauth2-server-php/zipball/8856aed1a98d6da596ae3f9b8095b5c7a1581697",
+                "reference": "8856aed1a98d6da596ae3f9b8095b5c7a1581697",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.9"
             },
+            "require-dev": {
+                "aws/aws-sdk-php": "~2.8",
+                "firebase/php-jwt": "~2.2",
+                "mongodb/mongodb": "^1.1",
+                "predis/predis": "dev-master",
+                "thobbs/phpcassa": "dev-master"
+            },
             "suggest": {
-                "aws/aws-sdk-php": "~2.8 is required to use the DynamoDB storage engine",
-                "firebase/php-jwt": "~2.2 is required to use JWT features",
-                "predis/predis": "Required to use the Redis storage engine",
-                "thobbs/phpcassa": "Required to use the Cassandra storage engine"
+                "aws/aws-sdk-php": "~2.8 is required to use DynamoDB storage",
+                "firebase/php-jwt": "~1.1 is required to use MondoDB storage",
+                "predis/predis": "Required to use Redis storage",
+                "thobbs/phpcassa": "Required to use Cassandra storage"
             },
             "type": "library",
             "autoload": {
@@ -54,7 +61,7 @@
                 "oauth",
                 "oauth2"
             ],
-            "time": "2015-09-18 18:05:10"
+            "time": "2017-01-06 23:20:00"
         },
         {
             "name": "chadicus/psr-middleware",
@@ -103,16 +110,16 @@
         },
         {
             "name": "chadicus/slim-oauth2-http",
-            "version": "v3.1.1",
+            "version": "v3.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/chadicus/slim-oauth2-http.git",
-                "reference": "690b6b02c7429eabb960c8b520827ed12aaf66b3"
+                "reference": "a4c99914b0079644009358bda670490ae80ce9bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/chadicus/slim-oauth2-http/zipball/690b6b02c7429eabb960c8b520827ed12aaf66b3",
-                "reference": "690b6b02c7429eabb960c8b520827ed12aaf66b3",
+                "url": "https://api.github.com/repos/chadicus/slim-oauth2-http/zipball/a4c99914b0079644009358bda670490ae80ce9bb",
+                "reference": "a4c99914b0079644009358bda670490ae80ce9bb",
                 "shasum": ""
             },
             "require": {
@@ -121,7 +128,7 @@
                 "zendframework/zend-diactoros": "^1.3"
             },
             "require-dev": {
-                "chadicus/coding-standard": "^1.1",
+                "chadicus/coding-standard": "^1.2",
                 "humbug/humbug": "1.0.0-alpha2",
                 "phpunit/phpunit": "^5.5",
                 "satooshi/php-coveralls": "^1.0"
@@ -147,14 +154,185 @@
                     "role": "Developer"
                 }
             ],
-            "description": "Bridge components for slim and oauth2 http messages.",
+            "description": "Bridge components for PSR-7 and bshaffer's OAuth2 Server http messages.",
             "keywords": [
+                "Bridge",
                 "http",
                 "message",
                 "oauth2",
+                "psr7",
+                "request",
+                "response",
                 "slim"
             ],
-            "time": "2016-11-15 17:07:36"
+            "time": "2017-01-03 15:36:45"
+        },
+        {
+            "name": "container-interop/container-interop",
+            "version": "1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/container-interop/container-interop.git",
+                "reference": "fc08354828f8fd3245f77a66b9e23a6bca48297e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/container-interop/container-interop/zipball/fc08354828f8fd3245f77a66b9e23a6bca48297e",
+                "reference": "fc08354828f8fd3245f77a66b9e23a6bca48297e",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Interop\\Container\\": "src/Interop/Container/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Promoting the interoperability of container objects (DIC, SL, etc.)",
+            "time": "2014-12-30 15:22:37"
+        },
+        {
+            "name": "php-di/invoker",
+            "version": "1.3.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/PHP-DI/Invoker.git",
+                "reference": "1f4ca63b9abc66109e53b255e465d0ddb5c2e3f7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/PHP-DI/Invoker/zipball/1f4ca63b9abc66109e53b255e465d0ddb5c2e3f7",
+                "reference": "1f4ca63b9abc66109e53b255e465d0ddb5c2e3f7",
+                "shasum": ""
+            },
+            "require": {
+                "container-interop/container-interop": "~1.1"
+            },
+            "require-dev": {
+                "athletic/athletic": "~0.1.8",
+                "phpunit/phpunit": "~4.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Invoker\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Generic and extensible callable invoker",
+            "homepage": "https://github.com/PHP-DI/Invoker",
+            "keywords": [
+                "callable",
+                "dependency",
+                "dependency-injection",
+                "injection",
+                "invoke",
+                "invoker"
+            ],
+            "time": "2016-07-14 13:09:58"
+        },
+        {
+            "name": "php-di/php-di",
+            "version": "5.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/PHP-DI/PHP-DI.git",
+                "reference": "e348393488fa909e4bc0707ba5c9c44cd602a1cb"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/PHP-DI/PHP-DI/zipball/e348393488fa909e4bc0707ba5c9c44cd602a1cb",
+                "reference": "e348393488fa909e4bc0707ba5c9c44cd602a1cb",
+                "shasum": ""
+            },
+            "require": {
+                "container-interop/container-interop": "~1.0",
+                "php": ">=5.5.0",
+                "php-di/invoker": "^1.3.2",
+                "php-di/phpdoc-reader": "^2.0.1"
+            },
+            "provide": {
+                "container-interop/container-interop-implementation": "^1.0"
+            },
+            "replace": {
+                "mnapoli/php-di": "*"
+            },
+            "require-dev": {
+                "doctrine/annotations": "~1.2",
+                "doctrine/cache": "~1.4",
+                "mnapoli/phpunit-easymock": "~0.2.0",
+                "ocramius/proxy-manager": "~1.0|~2.0",
+                "phpunit/phpunit": "~4.5"
+            },
+            "suggest": {
+                "doctrine/annotations": "Install it if you want to use annotations (version ~1.2)",
+                "doctrine/cache": "Install it if you want to use the cache (version ~1.4)",
+                "ocramius/proxy-manager": "Install it if you want to use lazy injection (version ~1.0 or ~2.0)"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "DI\\": "src/DI/"
+                },
+                "files": [
+                    "src/DI/functions.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "The dependency injection container for humans",
+            "homepage": "http://php-di.org/",
+            "keywords": [
+                "container",
+                "dependency injection",
+                "di"
+            ],
+            "time": "2016-08-23 20:18:00"
+        },
+        {
+            "name": "php-di/phpdoc-reader",
+            "version": "2.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/PHP-DI/PhpDocReader.git",
+                "reference": "83f5ead159defccfa8e7092e5b6c1c533b326d68"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/PHP-DI/PhpDocReader/zipball/83f5ead159defccfa8e7092e5b6c1c533b326d68",
+                "reference": "83f5ead159defccfa8e7092e5b6c1c533b326d68",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.6"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PhpDocReader\\": "src/PhpDocReader"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "PhpDocReader parses @var and @param values in PHP docblocks (supports namespaced class names with the same resolution rules as PHP)",
+            "keywords": [
+                "phpdoc",
+                "reflection"
+            ],
+            "time": "2015-11-29 10:34:25"
         },
         {
             "name": "psr/http-message",
@@ -208,16 +386,16 @@
         },
         {
             "name": "zendframework/zend-diactoros",
-            "version": "1.3.7",
+            "version": "1.3.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zendframework/zend-diactoros.git",
-                "reference": "969ff423d3f201da3ff718a5831bb999bb0669b0"
+                "reference": "d9c1fd7c4b024179d49faf367da544b4eef7cfe8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zendframework/zend-diactoros/zipball/969ff423d3f201da3ff718a5831bb999bb0669b0",
-                "reference": "969ff423d3f201da3ff718a5831bb999bb0669b0",
+                "url": "https://api.github.com/repos/zendframework/zend-diactoros/zipball/d9c1fd7c4b024179d49faf367da544b4eef7cfe8",
+                "reference": "d9c1fd7c4b024179d49faf367da544b4eef7cfe8",
                 "shasum": ""
             },
             "require": {
@@ -229,7 +407,7 @@
             },
             "require-dev": {
                 "phpunit/phpunit": "^4.6 || ^5.5",
-                "squizlabs/php_codesniffer": "^2.3.1"
+                "zendframework/zend-coding-standard": "~1.0.0"
             },
             "type": "library",
             "extra": {
@@ -254,22 +432,22 @@
                 "psr",
                 "psr-7"
             ],
-            "time": "2016-10-11 13:25:21"
+            "time": "2017-01-05 21:44:28"
         }
     ],
     "packages-dev": [
         {
             "name": "chadicus/coding-standard",
-            "version": "v1.1.2",
+            "version": "v1.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/chadicus/coding-standard.git",
-                "reference": "3264851a30a7305995998660ee239d1a3d1c311f"
+                "reference": "0dd21e93eea128ce4bddc30b38dc0a08aae51564"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/chadicus/coding-standard/zipball/3264851a30a7305995998660ee239d1a3d1c311f",
-                "reference": "3264851a30a7305995998660ee239d1a3d1c311f",
+                "url": "https://api.github.com/repos/chadicus/coding-standard/zipball/0dd21e93eea128ce4bddc30b38dc0a08aae51564",
+                "reference": "0dd21e93eea128ce4bddc30b38dc0a08aae51564",
                 "shasum": ""
             },
             "require": {
@@ -293,7 +471,7 @@
                 "phpcs",
                 "standard"
             ],
-            "time": "2016-08-04 18:59:29"
+            "time": "2017-01-04 20:38:40"
         },
         {
             "name": "doctrine/instantiator",
@@ -698,16 +876,16 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "4.0.3",
+            "version": "4.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "903fd6318d0a90b4770a009ff73e4a4e9c437929"
+                "reference": "c14196e64a78570034afd0b7a9f3757ba71c2a0a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/903fd6318d0a90b4770a009ff73e4a4e9c437929",
-                "reference": "903fd6318d0a90b4770a009ff73e4a4e9c437929",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/c14196e64a78570034afd0b7a9f3757ba71c2a0a",
+                "reference": "c14196e64a78570034afd0b7a9f3757ba71c2a0a",
                 "shasum": ""
             },
             "require": {
@@ -757,7 +935,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2016-11-28 16:00:31"
+            "time": "2016-12-20 15:22:42"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -942,16 +1120,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "5.7.2",
+            "version": "5.7.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "336aff0ac52e306c98e7455bc3e8d7b0bf777a5e"
+                "reference": "50fd2be8f3e23e91da825f36f08e5f9633076ffe"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/336aff0ac52e306c98e7455bc3e8d7b0bf777a5e",
-                "reference": "336aff0ac52e306c98e7455bc3e8d7b0bf777a5e",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/50fd2be8f3e23e91da825f36f08e5f9633076ffe",
+                "reference": "50fd2be8f3e23e91da825f36f08e5f9633076ffe",
                 "shasum": ""
             },
             "require": {
@@ -962,7 +1140,7 @@
                 "ext-xml": "*",
                 "myclabs/deep-copy": "~1.3",
                 "php": "^5.6 || ^7.0",
-                "phpspec/prophecy": "^1.3.1",
+                "phpspec/prophecy": "^1.6.2",
                 "phpunit/php-code-coverage": "^4.0.3",
                 "phpunit/php-file-iterator": "~1.4",
                 "phpunit/php-text-template": "~1.2",
@@ -972,7 +1150,7 @@
                 "sebastian/diff": "~1.2",
                 "sebastian/environment": "^1.3.4 || ^2.0",
                 "sebastian/exporter": "~2.0",
-                "sebastian/global-state": "~1.0",
+                "sebastian/global-state": "^1.0 || ^2.0",
                 "sebastian/object-enumerator": "~2.0",
                 "sebastian/resource-operations": "~1.0",
                 "sebastian/version": "~1.0|~2.0",
@@ -1020,20 +1198,20 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2016-12-03 08:33:00"
+            "time": "2016-12-28 07:18:51"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
-            "version": "3.4.2",
+            "version": "3.4.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit-mock-objects.git",
-                "reference": "90a08f5deed5f7ac35463c161f2e8fa0e5652faf"
+                "reference": "3ab72b65b39b491e0c011e2e09bb2206c2aa8e24"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit-mock-objects/zipball/90a08f5deed5f7ac35463c161f2e8fa0e5652faf",
-                "reference": "90a08f5deed5f7ac35463c161f2e8fa0e5652faf",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit-mock-objects/zipball/3ab72b65b39b491e0c011e2e09bb2206c2aa8e24",
+                "reference": "3ab72b65b39b491e0c011e2e09bb2206c2aa8e24",
                 "shasum": ""
             },
             "require": {
@@ -1079,7 +1257,7 @@
                 "mock",
                 "xunit"
             ],
-            "time": "2016-11-27 07:52:03"
+            "time": "2016-12-08 20:27:08"
         },
         {
             "name": "psr/log",
@@ -1779,16 +1957,16 @@
         },
         {
             "name": "symfony/config",
-            "version": "v3.2.0",
+            "version": "v3.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/config.git",
-                "reference": "4a68f8953180bf77ea65f585020f4db0b18600b4"
+                "reference": "b4ec9f099599cfc5b7f4d07bb2e910781a2be5e4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/config/zipball/4a68f8953180bf77ea65f585020f4db0b18600b4",
-                "reference": "4a68f8953180bf77ea65f585020f4db0b18600b4",
+                "url": "https://api.github.com/repos/symfony/config/zipball/b4ec9f099599cfc5b7f4d07bb2e910781a2be5e4",
+                "reference": "b4ec9f099599cfc5b7f4d07bb2e910781a2be5e4",
                 "shasum": ""
             },
             "require": {
@@ -1831,20 +2009,20 @@
             ],
             "description": "Symfony Config Component",
             "homepage": "https://symfony.com",
-            "time": "2016-11-29 11:12:32"
+            "time": "2016-12-09 07:45:17"
         },
         {
             "name": "symfony/console",
-            "version": "v3.2.0",
+            "version": "v3.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "09d0fd33560e3573185a2ea17614e37ba38716c5"
+                "reference": "d12aa9ca20f4db83ec58410978dab6afcb9d6aaa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/09d0fd33560e3573185a2ea17614e37ba38716c5",
-                "reference": "09d0fd33560e3573185a2ea17614e37ba38716c5",
+                "url": "https://api.github.com/repos/symfony/console/zipball/d12aa9ca20f4db83ec58410978dab6afcb9d6aaa",
+                "reference": "d12aa9ca20f4db83ec58410978dab6afcb9d6aaa",
                 "shasum": ""
             },
             "require": {
@@ -1894,11 +2072,11 @@
             ],
             "description": "Symfony Console Component",
             "homepage": "https://symfony.com",
-            "time": "2016-11-16 22:18:16"
+            "time": "2016-12-11 14:34:22"
         },
         {
             "name": "symfony/debug",
-            "version": "v3.2.0",
+            "version": "v3.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/debug.git",
@@ -1955,7 +2133,7 @@
         },
         {
             "name": "symfony/event-dispatcher",
-            "version": "v2.8.14",
+            "version": "v2.8.15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/event-dispatcher.git",
@@ -2015,7 +2193,7 @@
         },
         {
             "name": "symfony/filesystem",
-            "version": "v3.2.0",
+            "version": "v3.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/filesystem.git",
@@ -2123,7 +2301,7 @@
         },
         {
             "name": "symfony/stopwatch",
-            "version": "v3.2.0",
+            "version": "v3.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/stopwatch.git",
@@ -2172,16 +2350,16 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v3.2.0",
+            "version": "v3.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "f2300ba8fbb002c028710b92e1906e7457410693"
+                "reference": "a7095af4b97a0955f85c8989106c249fa649011f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/f2300ba8fbb002c028710b92e1906e7457410693",
-                "reference": "f2300ba8fbb002c028710b92e1906e7457410693",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/a7095af4b97a0955f85c8989106c249fa649011f",
+                "reference": "a7095af4b97a0955f85c8989106c249fa649011f",
                 "shasum": ""
             },
             "require": {
@@ -2223,7 +2401,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2016-11-18 21:17:59"
+            "time": "2016-12-10 10:07:06"
         },
         {
             "name": "webmozart/assert",
