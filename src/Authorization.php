@@ -40,7 +40,7 @@ class Authorization implements MiddlewareInterface
      * Create a new instance of the Authorization middleware.
      *
      * @param OAuth2\Server $server    The configured OAuth2 server.
-     * @param DI\Container   $container A container object in which to store the token from the request.
+     * @param DI\Container  $container A container object in which to store the token from the request.
      * @param array         $scopes    Scopes required for authorization. $scopes can be given as an array of arrays. OR
      *                                 logic will use with each grouping.  Example:
      *                                 Given ['superUser', ['basicUser', 'aPermission']], the request will be verified
