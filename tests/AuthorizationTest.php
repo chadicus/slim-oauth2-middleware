@@ -3,6 +3,8 @@
 namespace Chadicus\Slim\OAuth2\Middleware;
 
 use ArrayObject;
+use DI;
+use DI\ContainerBuilder;
 use OAuth2;
 use OAuth2\Storage;
 use Zend\Diactoros\Response;
@@ -17,6 +19,21 @@ use Zend\Diactoros\ServerRequest;
  */
 final class AuthorizationTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var DI\Container
+     */
+    private $container;
+
+    /**
+     * @inheritdoc
+     * @return void
+     */
+    public function setUp()
+    {
+        $containerBuilder = new ContainerBuilder;
+        $this->container = $containerBuilder->build();
+    }
+
     /**
      * Verify basic behavior of __invoke()
      *
@@ -54,9 +71,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $headers = ['Authorization' => ['Bearer atokenvalue']];
         $request = new ServerRequest([], [], $uri, 'PATCH', 'php://input', $headers);
 
-        $container = new ArrayObject();
-
-        $middleware = new Authorization($server, $container);
+        $middleware = new Authorization($server, $this->container);
 
         $next = function ($request, $response) {
             return $response;
@@ -72,7 +87,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
                 'expires' => 99999999900,
                 'scope' => null,
             ],
-            $container['token']
+            $this->container->get('token')
         );
     }
 
@@ -103,8 +118,8 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $server = new OAuth2\Server(
             $storage,
             [
-                'enforce_state'   => true,
-                'allow_implicit'  => false,
+                'enforce_state' => true,
+                'allow_implicit' => false,
                 'access_lifetime' => 3600
             ]
         );
@@ -113,7 +128,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $headers = ['Authorization' => ['Bearer atokenvalue']];
         $request = new ServerRequest([], [], $uri, 'PATCH', 'php://input', $headers);
 
-        $middleware = new Authorization($server, new ArrayObject);
+        $middleware = new Authorization($server, $this->container);
 
         $next = function () {
             throw new \Exception('This will not get executed');
@@ -123,7 +138,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame(401, $response->getStatusCode());
         $this->assertSame(
-            '{"error":"expired_token","error_description":"The access token provided has expired"}',
+            '{"error":"invalid_token","error_description":"The access token provided has expired"}',
             (string)$response->getBody()
         );
     }
@@ -156,8 +171,8 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $server = new OAuth2\Server(
             $storage,
             [
-                'enforce_state'   => true,
-                'allow_implicit'  => false,
+                'enforce_state' => true,
+                'allow_implicit' => false,
                 'access_lifetime' => 3600
             ]
         );
@@ -166,9 +181,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $headers = ['Authorization' => ['Bearer atokenvalue']];
         $request = new ServerRequest([], [], $uri, 'PATCH', 'php://input', $headers);
 
-        $container = new ArrayObject();
-
-        $middleware = new Authorization($server, $container);
+        $middleware = new Authorization($server, $this->container);
 
         $next = function ($request, $response) {
             return $response;
@@ -185,7 +198,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
                 'expires' => 99999999900,
                 'scope' => 'allowFoo anotherScope',
             ],
-            $container['token']
+            $this->container->get('token')
         );
     }
 
@@ -217,8 +230,8 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $server = new OAuth2\Server(
             $storage,
             [
-                'enforce_state'   => true,
-                'allow_implicit'  => false,
+                'enforce_state' => true,
+                'allow_implicit' => false,
                 'access_lifetime' => 3600
             ]
         );
@@ -227,7 +240,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $headers = ['Authorization' => ['Bearer atokenvalue']];
         $request = new ServerRequest([], [], $uri, 'PATCH', 'php://input', $headers);
 
-        $middleware = new Authorization($server, new ArrayObject(), ['allowFoo']);
+        $middleware = new Authorization($server, $this->container, ['allowFoo']);
 
         $next = function ($request, $response) {
             throw new \Exception('This will not get executed');
@@ -258,8 +271,8 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $server = new OAuth2\Server(
             $storage,
             [
-                'enforce_state'   => true,
-                'allow_implicit'  => false,
+                'enforce_state' => true,
+                'allow_implicit' => false,
                 'access_lifetime' => 3600
             ]
         );
@@ -267,7 +280,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $uri = 'localhost:8888/foos';
         $request = new ServerRequest([], [], $uri, 'PATCH', 'php://input', []);
 
-        $middleware = new Authorization($server, new ArrayObject());
+        $middleware = new Authorization($server, $this->container);
 
         $next = function ($request, $response) {
             throw new \Exception('This will not get executed');
@@ -305,8 +318,8 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $server = new OAuth2\Server(
             $storage,
             [
-                'enforce_state'   => true,
-                'allow_implicit'  => false,
+                'enforce_state' => true,
+                'allow_implicit' => false,
                 'access_lifetime' => 3600
             ]
         );
@@ -315,9 +328,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $headers = ['Authorization' => ['Bearer atokenvalue']];
         $request = new ServerRequest([], [], $uri, 'PATCH', 'php://input', $headers);
 
-        $container = new ArrayObject();
-
-        $middleware = new Authorization($server, $container, ['superUser', ['basicUser', 'withPermission']]);
+        $middleware = new Authorization($server, $this->container, ['superUser', ['basicUser', 'withPermission']]);
 
         $next = function ($request, $response) {
             return $response;
@@ -334,7 +345,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
                 'expires' => 99999999900,
                 'scope' => 'basicUser withPermission anExtraScope',
             ],
-            $container['token']
+            $this->container->get('token')
         );
     }
 
@@ -377,7 +388,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
 
         $container = new ArrayObject();
 
-        $middleware = new Authorization($server, $container, []);
+        $middleware = new Authorization($server, $this->container, []);
 
         $next = function ($request, $response) {
             return $response;
@@ -393,7 +404,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
                 'expires' => 99999999900,
                 'scope' => null,
             ],
-            $container['token']
+            $this->container->get('token')
         );
     }
 
@@ -412,8 +423,8 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $server = new OAuth2\Server(
             $storage,
             [
-                'enforce_state'   => true,
-                'allow_implicit'  => false,
+                'enforce_state' => true,
+                'allow_implicit' => false,
                 'access_lifetime' => 3600
             ]
         );
@@ -421,7 +432,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $uri = 'localhost:8888/foos';
         $request = new ServerRequest([], [], $uri, 'PATCH', 'php://input', []);
 
-        $middleware = new Authorization($server, new ArrayObject());
+        $middleware = new Authorization($server, $this->container);
 
         $next = function ($request, $response) {
             throw new \Exception('This will not get executed');
@@ -450,7 +461,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
             new OAuth2\Response([], 400, ['Content-Type' => 'text/html'])
         );
 
-        $middleware = new Authorization($oauth2ServerMock, new ArrayObject());
+        $middleware = new Authorization($oauth2ServerMock, $this->container);
         $next = function ($request, $response) {
             throw new \Exception('This will not get executed');
         };

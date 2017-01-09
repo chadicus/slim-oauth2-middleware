@@ -5,6 +5,7 @@ use ArrayAccess;
 use Chadicus\Slim\OAuth2\Http\RequestBridge;
 use Chadicus\Slim\OAuth2\Http\ResponseBridge;
 use Chadicus\Psr\Middleware\MiddlewareInterface;
+use DI;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use OAuth2;
@@ -36,17 +37,17 @@ class Authorization implements MiddlewareInterface
     private $container;
 
     /**
-     * Create a new instance of the Authroization middleware.
+     * Create a new instance of the Authorization middleware.
      *
      * @param OAuth2\Server $server    The configured OAuth2 server.
-     * @param ArrayAccess   $container A container object in which to store the token from the request.
+     * @param DI\Container  $container A container object in which to store the token from the request.
      * @param array         $scopes    Scopes required for authorization. $scopes can be given as an array of arrays. OR
      *                                 logic will use with each grouping.  Example:
      *                                 Given ['superUser', ['basicUser', 'aPermission']], the request will be verified
      *                                 if the request token has 'superUser' scope OR 'basicUser' and 'aPermission' as
      *                                 its scope.
      */
-    public function __construct(OAuth2\Server $server, ArrayAccess $container, array $scopes = [])
+    public function __construct(OAuth2\Server $server, DI\Container $container, array $scopes = [])
     {
         $this->server = $server;
         $this->container = $container;
@@ -67,7 +68,7 @@ class Authorization implements MiddlewareInterface
         $oauth2Request = RequestBridge::toOAuth2($request);
         foreach ($this->scopes as $scope) {
             if ($this->server->verifyResourceRequest($oauth2Request, null, $scope)) {
-                $this->container['token'] = $this->server->getResourceController()->getToken();
+                $this->container->set('token', $this->server->getResourceController()->getToken());
                 return $next($request, $response);
             }
         }
