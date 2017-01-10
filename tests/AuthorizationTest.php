@@ -123,7 +123,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame(401, $response->getStatusCode());
         $this->assertSame(
-            '{"error":"expired_token","error_description":"The access token provided has expired"}',
+            '{"error":"invalid_token","error_description":"The access token provided has expired"}',
             (string)$response->getBody()
         );
     }
