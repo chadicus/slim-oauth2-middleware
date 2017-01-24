@@ -59,9 +59,20 @@ use Slim;
 $storage = new Storage\Memory(
     [
         'client_credentials' => [
-            'testClientId' => [
-                'client_id' => 'chadicus-app',
+            'administrator' => [
+                'client_id' => 'administrator',
                 'client_secret' => 'password',
+                'scope' => 'superUser',
+            ],
+            'foo-client' => [
+                'client_id' => 'foo-client',
+                'client_secret' => 'p4ssw0rd',
+                'scope' => 'basicUser canViewFoos',
+            ],
+            'bar-client' => [
+                'client_id' => 'foo-client',
+                'client_secret' => '!password1',
+                'scope' => 'basicUser',
             ],
         ],
     ]
