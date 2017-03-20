@@ -22,7 +22,7 @@ Middleware for using [OAuth2 Server](http://bshaffer.github.io/oauth2-server-php
 
 Chadicus\Slim\OAuth2\Middleware requires PHP 5.6 (or later).
 
-##Composer
+## Composer
 To add the library as a local, per-project dependency use [Composer](http://getcomposer.org)! Simply add a dependency on
 `chadicus/slim-oauth2-middleware` to your project's `composer.json` file such as:
 
@@ -30,13 +30,13 @@ To add the library as a local, per-project dependency use [Composer](http://getc
 composer require chadicus/slim-oauth2-middleware
 ```
 
-##Contact
+## Contact
 Developers may be contacted at:
 
  * [Pull Requests](https://github.com/chadicus/slim-oauth2-middleware/pulls)
  * [Issues](https://github.com/chadicus/slim-oauth2-middleware/issues)
 
-##Project Build
+## Project Build
 With a checkout of the code get [Composer](http://getcomposer.org) in your PATH and run:
 
 ```sh
@@ -44,7 +44,7 @@ With a checkout of the code get [Composer](http://getcomposer.org) in your PATH 
 ./vendor/bin/phpunit
 ```
 
-##Example Usage
+## Example Usage
 
 Simple example for using the authorization middleware.
 
