@@ -1,8 +1,9 @@
 <?php
 
-namespace Chadicus\Slim\OAuth2\Middleware;
+namespace ChadicusTest\Slim\OAuth2\Middleware;
 
 use ArrayObject;
+use Chadicus\Slim\OAuth2\Middleware\Authorization;
 use OAuth2;
 use OAuth2\Storage;
 use Zend\Diactoros\Response;
