@@ -7,6 +7,7 @@ use Chadicus\Slim\OAuth2\Http\ResponseBridge;
 use Chadicus\Psr\Middleware\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Interop\Container\ContainerInterface;
 use OAuth2;
 
 /**
