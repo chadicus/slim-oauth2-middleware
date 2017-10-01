@@ -39,14 +39,15 @@ class Authorization implements MiddlewareInterface
     /**
      * Create a new instance of the Authroization middleware.
      *
-     * @param OAuth2\Server $server          The configured OAuth2 server.
-     * @param ArrayAccess|ContainerInterface $container A container object in which to store the token from the request.
-     * @param array         $scopes          Scopes required for authorization. $scopes can be given as an array of
-     *                                       arrays. OR logic will use with each grouping.
-     *                                       Example:
-     *                                       Given ['superUser', ['basicUser', 'aPermission']], the request will be
-     *                                       verified if the request token has 'superUser' scope OR 'basicUser' and
-     *                                       'aPermission' as its scope.
+     * @param OAuth2\Server                  $server    The configured OAuth2 server.
+     * @param ArrayAccess|ContainerInterface $container A container object in which to store the token from the
+     *                                                  request.
+     * @param array                          $scopes    Scopes required for authorization. $scopes can be given as an
+     *                                                  array of arrays. OR logic will use with each grouping.
+     *                                                  Example:
+     *                                                  Given ['superUser', ['basicUser', 'aPermission']], the request
+     *                                                  will be verified if the request token has 'superUser' scope
+     *                                                  OR 'basicUser' and 'aPermission' as its scope.
      *
      * @throws \InvalidArgumentException Thrown if $container is not an instance of ArrayAccess or ContainerInterface.
      */
@@ -105,7 +106,7 @@ class Authorization implements MiddlewareInterface
             return;
         }
 
-       $this->container->set('token', $token);
+        $this->container->set('token', $token);
     }
 
     /**
