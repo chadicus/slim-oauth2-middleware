@@ -16,11 +16,11 @@
         "chadicus/slim-oauth2-http": "^3.1",
         "chadicus/psr-middleware": "^1.0",
         "psr/http-message": "^1.0",
-        "container-interop/container-interop": "^1.1"
+        "container-interop/container-interop": "^1.1",
+        "phpunit/phpunit": "^5.5"
     },
     "require-dev": {
         "zendframework/zend-diactoros": "^1.3",
-        "phpunit/phpunit": "^5.0",
         "chadicus/coding-standard": "^1.0",
         "php-di/php-di": "^5.4",
         "php-coveralls/php-coveralls": "^1.0"
