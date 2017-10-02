@@ -40,7 +40,7 @@ Developers may be contacted at:
 With a checkout of the code get [Composer](http://getcomposer.org) in your PATH and run:
 
 ```sh
-./composer install
+composer install
 ./vendor/bin/phpunit
 ./vendor/bin/phpcs
 ```
