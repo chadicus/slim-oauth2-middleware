@@ -3,8 +3,6 @@
 [![Build Status](https://travis-ci.org/chadicus/slim-oauth2-middleware.svg?branch=master)](https://travis-ci.org/chadicus/slim-oauth2-middleware)
 [![Code Quality](https://scrutinizer-ci.com/g/chadicus/slim-oauth2-middleware/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/chadicus/slim-oauth2-middleware/?branch=master)
 [![Code Coverage](https://coveralls.io/repos/github/chadicus/slim-oauth2-middleware/badge.svg?branch=master)](https://coveralls.io/github/chadicus/slim-oauth2-middleware?branch=master)
-[![Dependency Status](https://www.versioneye.com/user/projects/55b9075e653762001a0012b3/badge.svg?style=flat)](https://www.versioneye.com/user/projects/55b9075e653762001a0012b3)
-[![Reference Status](https://www.versioneye.com/php/chadicus:slim-oauth2-middleware/reference_badge.svg?style=flat)](https://www.versioneye.com/php/chadicus:slim-oauth2-middleware/references)
 
 [![Latest Stable Version](https://poser.pugx.org/chadicus/slim-oauth2-middleware/v/stable)](https://packagist.org/packages/chadicus/slim-oauth2-middleware)
 [![Latest Unstable Version](https://poser.pugx.org/chadicus/slim-oauth2-middleware/v/unstable)](https://packagist.org/packages/chadicus/slim-oauth2-middleware)
