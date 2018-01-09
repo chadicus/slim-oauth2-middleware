@@ -16,7 +16,7 @@ use Zend\Diactoros\ServerRequest;
  * @covers ::<private>
  * @covers ::__construct
  */
-final class AuthorizationTest extends \PHPUnit_Framework_TestCase
+final class AuthorizationTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * Verify basic behavior of __invoke()
