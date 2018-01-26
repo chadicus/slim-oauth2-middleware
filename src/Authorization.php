@@ -4,9 +4,10 @@ namespace Chadicus\Slim\OAuth2\Middleware;
 use ArrayAccess;
 use Chadicus\Slim\OAuth2\Http\RequestBridge;
 use Chadicus\Slim\OAuth2\Http\ResponseBridge;
-use Chadicus\Psr\Middleware\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Interop\Container\ContainerInterface;
 use OAuth2;
 
@@ -75,11 +76,45 @@ class Authorization implements MiddlewareInterface
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
+        $handler = new class implements RequestHandlerInterface
+        {
+            public $next;
+            public $response;
+
+            /**
+             * Handle the request and return a response.
+             *
+             * @param ServerRequestInterface $request The request to handle.
+             *
+             * @return ResponseInterface
+             */
+            public function handle(ServerRequestInterface $request): ResponseInterface
+            {
+                return call_user_func_array($this->next, [$request, $this->response]);
+            }
+        };
+
+        $handler->next = $next;
+        $handler->response = $response;
+
+        return $this->process($request, $handler);
+    }
+
+    /**
+     * Execute this middleware.
+     *
+     * @param ServerRequestInterface  $request The PSR7 request.
+     * @param RequestHandlerInterface $handler The PSR7 response.
+     *
+     * @return ResponseInterface
+     */
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
+    {
         $oauth2Request = RequestBridge::toOAuth2($request);
         foreach ($this->scopes as $scope) {
             if ($this->server->verifyResourceRequest($oauth2Request, null, $scope)) {
                 $this->setToken($this->server->getResourceController()->getToken());
-                return $next($request, $response);
+                return $handler->handle($request);
             }
         }
 
