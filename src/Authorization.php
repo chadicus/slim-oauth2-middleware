@@ -66,7 +66,7 @@ class Authorization implements MiddlewareInterface
     }
 
     /**
-     * Execute this middleware.
+     * Execute this middleware as a function.
      *
      * @param  ServerRequestInterface $request  The PSR7 request.
      * @param  ResponseInterface      $response The PSR7 response.
@@ -103,8 +103,8 @@ class Authorization implements MiddlewareInterface
     /**
      * Execute this middleware.
      *
-     * @param ServerRequestInterface  $request The PSR7 request.
-     * @param RequestHandlerInterface $handler The PSR7 response.
+     * @param ServerRequestInterface  $request The PSR-7 request.
+     * @param RequestHandlerInterface $handler The PSR-15 request handler.
      *
      * @return ResponseInterface
      */
