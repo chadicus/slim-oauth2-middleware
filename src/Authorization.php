@@ -1,14 +1,12 @@
 <?php
 namespace Chadicus\Slim\OAuth2\Middleware;
 
-use ArrayAccess;
 use Chadicus\Slim\OAuth2\Http\RequestBridge;
 use Chadicus\Slim\OAuth2\Http\ResponseBridge;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Interop\Container\ContainerInterface;
 use OAuth2;
 
 /**
@@ -31,37 +29,18 @@ class Authorization implements MiddlewareInterface
     private $scopes;
 
     /**
-     * Container for token.
-     *
-     * @var ArrayAccess|ContainerInterface
-     */
-    private $container;
-
-    /**
      * Create a new instance of the Authroization middleware.
      *
-     * @param OAuth2\Server                  $server    The configured OAuth2 server.
-     * @param ArrayAccess|ContainerInterface $container A container object in which to store the token from the
-     *                                                  request.
-     * @param array                          $scopes    Scopes required for authorization. $scopes can be given as an
-     *                                                  array of arrays. OR logic will use with each grouping.
-     *                                                  Example:
-     *                                                  Given ['superUser', ['basicUser', 'aPermission']], the request
-     *                                                  will be verified if the request token has 'superUser' scope
-     *                                                  OR 'basicUser' and 'aPermission' as its scope.
-     *
-     * @throws \InvalidArgumentException Thrown if $container is not an instance of ArrayAccess or ContainerInterface.
+     * @param OAuth2\Server $server The configured OAuth2 server.
+     * @param array         $scopes Scopes required for authorization. $scopes can be given as an array of arrays.
+     *                              OR logic will use with each grouping.
+     *                              Example: Given ['superUser', ['basicUser', 'aPermission']], the request will be
+     *                              verified if the request token has 'superUser' scope OR 'basicUser' and
+     *                              'aPermission' as its scope.
      */
-    public function __construct(OAuth2\Server $server, $container, array $scopes = [])
+    public function __construct(OAuth2\Server $server, array $scopes = [])
     {
         $this->server = $server;
-        if (!is_a($container, '\\ArrayAccess') && !is_a($container, '\\Interop\\Container\\ContainerInterface')) {
-            throw new \InvalidArgumentException(
-                '$container does not implement \\ArrayAccess or \\Interop\\Container\\ContainerInterface'
-            );
-        }
-
-        $this->container = $container;
         $this->scopes = $this->formatScopes($scopes);
     }
 
@@ -113,8 +92,8 @@ class Authorization implements MiddlewareInterface
         $oauth2Request = RequestBridge::toOAuth2($request);
         foreach ($this->scopes as $scope) {
             if ($this->server->verifyResourceRequest($oauth2Request, null, $scope)) {
-                $this->setToken($this->server->getResourceController()->getToken());
-                return $handler->handle($request);
+                $token = $this->server->getResourceController()->getToken();
+                return $handler->handle($request->withAttribute('oauth2-token', $token));
             }
         }
 
@@ -125,23 +104,6 @@ class Authorization implements MiddlewareInterface
         }
 
         return $response->withHeader('Content-Type', 'application/json');
-    }
-
-    /**
-     * Helper method to set the token value in the container instance.
-     *
-     * @param array $token The token from the incoming request.
-     *
-     * @return void
-     */
-    private function setToken(array $token)
-    {
-        if (is_a($this->container, '\\ArrayAccess')) {
-            $this->container['token'] = $token;
-            return;
-        }
-
-        $this->container->set('token', $token);
     }
 
     /**
