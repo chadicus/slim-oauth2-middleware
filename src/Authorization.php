@@ -5,6 +5,7 @@ use ArrayAccess;
 use Chadicus\Slim\OAuth2\Http\RequestBridge;
 use Chadicus\Slim\OAuth2\Http\ResponseBridge;
 use Chadicus\Psr\Middleware\MiddlewareInterface;
+use Interop\Container\ContainerInterface as InteropContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
@@ -54,13 +55,7 @@ class Authorization implements MiddlewareInterface
     public function __construct(OAuth2\Server $server, $container, array $scopes = [])
     {
         $this->server = $server;
-        if (!is_a($container, '\\ArrayAccess') && !is_a($container, '\\Psr\\Container\\ContainerInterface')) {
-            throw new \InvalidArgumentException(
-                '$container does not implement \\ArrayAccess or \\Psr\\Container\\ContainerInterface'
-            );
-        }
-
-        $this->container = $container;
+        $this->container = $this->validateContainer($container);
         $this->scopes = $this->formatScopes($scopes);
     }
 
@@ -146,5 +141,29 @@ class Authorization implements MiddlewareInterface
         );
 
         return $scopes;
+    }
+
+    private function validateContainer($container)
+    {
+        if (is_a($container, ArrayAccess::class)) {
+            return $container;
+        }
+
+        if (is_a($container, ContainerInterface::class)) {
+            return $container;
+        }
+
+        if (is_a($container, InteropContainerInterface::class)) {
+            return $container;
+        }
+
+        throw new \InvalidArgumentException(
+            sprintf(
+                '$container does not implement %s, %s, or %s',
+                ArrayAccess::class,
+                ContainerInterface::class,
+                InteropContainerInterface::class
+            )
+        );
     }
 }
