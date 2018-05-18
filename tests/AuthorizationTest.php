@@ -466,7 +466,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
      * @test
      * @covers ::__construct
      * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage $container does not implement \ArrayAccess or \Interop\Container\ContainerInterface
+     * @expectedExceptionMessage $container does not implement \ArrayAccess or \Psr\Container\ContainerInterface
      *
      * @return void
      */

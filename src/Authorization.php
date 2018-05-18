@@ -7,7 +7,7 @@ use Chadicus\Slim\OAuth2\Http\ResponseBridge;
 use Chadicus\Psr\Middleware\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 use OAuth2;
 
 /**
@@ -54,9 +54,9 @@ class Authorization implements MiddlewareInterface
     public function __construct(OAuth2\Server $server, $container, array $scopes = [])
     {
         $this->server = $server;
-        if (!is_a($container, '\\ArrayAccess') && !is_a($container, '\\Interop\\Container\\ContainerInterface')) {
+        if (!is_a($container, '\\ArrayAccess') && !is_a($container, '\\Psr\\Container\\ContainerInterface')) {
             throw new \InvalidArgumentException(
-                '$container does not implement \\ArrayAccess or \\Interop\\Container\\ContainerInterface'
+                '$container does not implement \\ArrayAccess or \\Psr\\Container\\ContainerInterface'
             );
         }
 
