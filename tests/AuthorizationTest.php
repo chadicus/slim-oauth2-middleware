@@ -466,7 +466,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
      * @test
      * @covers ::__construct
      * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage $container does not implement ArrayAccess, Psr\Container\ContainerInterface
+     * @expectedExceptionMessage $container does not implement ArrayAccess or contain a 'set' method
      *
      * @return void
      */
@@ -474,6 +474,23 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
     {
         $oauth2ServerMock = $this->getMockBuilder('\\OAuth2\\Server')->disableOriginalConstructor()->getMock();
         new Authorization($oauth2ServerMock, new \StdClass());
+    }
+
+    /**
+     * Verify middleware cannot be constructed with a pure PSR-11 container.
+     *
+     * @test
+     * @covers ::__construct
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage $container does not implement ArrayAccess or contain a 'set' method
+     *
+     * @return void
+     */
+    public function constructWithPSR11Container()
+    {
+        $container = $this->getMockBuilder('\\Psr\\Container\\ContainerInterface')->getMock();
+        $oauth2ServerMock = $this->getMockBuilder('\\OAuth2\\Server')->disableOriginalConstructor()->getMock();
+        new Authorization($oauth2ServerMock, $container);
     }
 
     /**
