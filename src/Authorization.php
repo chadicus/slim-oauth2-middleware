@@ -5,10 +5,8 @@ use ArrayAccess;
 use Chadicus\Slim\OAuth2\Http\RequestBridge;
 use Chadicus\Slim\OAuth2\Http\ResponseBridge;
 use Chadicus\Psr\Middleware\MiddlewareInterface;
-use Interop\Container\ContainerInterface as InteropContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Container\ContainerInterface;
 use OAuth2;
 
 /**
@@ -33,22 +31,21 @@ class Authorization implements MiddlewareInterface
     /**
      * Container for token.
      *
-     * @var ArrayAccess|ContainerInterface
+     * @var mixed
      */
     private $container;
 
     /**
      * Create a new instance of the Authroization middleware.
      *
-     * @param OAuth2\Server                  $server    The configured OAuth2 server.
-     * @param ArrayAccess|ContainerInterface $container A container object in which to store the token from the
-     *                                                  request.
-     * @param array                          $scopes    Scopes required for authorization. $scopes can be given as an
-     *                                                  array of arrays. OR logic will use with each grouping.
-     *                                                  Example:
-     *                                                  Given ['superUser', ['basicUser', 'aPermission']], the request
-     *                                                  will be verified if the request token has 'superUser' scope
-     *                                                  OR 'basicUser' and 'aPermission' as its scope.
+     * @param OAuth2\Server $server    The configured OAuth2 server.
+     * @param mixed         $container A container object in which to store the token from the request.
+     * @param array         $scopes    Scopes required for authorization. $scopes can be given as an
+     *                                 array of arrays. OR logic will use with each grouping.
+     *                                 Example:
+     *                                 Given ['superUser', ['basicUser', 'aPermission']], the request
+     *                                 will be verified if the request token has 'superUser' scope
+     *                                 OR 'basicUser' and 'aPermission' as its scope.
      *
      * @throws \InvalidArgumentException Thrown if $container is not an instance of ArrayAccess or ContainerInterface.
      */
@@ -149,21 +146,10 @@ class Authorization implements MiddlewareInterface
             return $container;
         }
 
-        if (is_a($container, ContainerInterface::class)) {
+        if (method_exists($container, 'set')) {
             return $container;
         }
 
-        if (is_a($container, InteropContainerInterface::class)) {
-            return $container;
-        }
-
-        throw new \InvalidArgumentException(
-            sprintf(
-                '$container does not implement %s, %s, or %s',
-                ArrayAccess::class,
-                ContainerInterface::class,
-                InteropContainerInterface::class
-            )
-        );
+        throw new \InvalidArgumentException("\$container does not implement ArrayAccess or contain a 'set' method");
     }
 }
