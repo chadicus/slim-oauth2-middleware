@@ -15,6 +15,11 @@ use OAuth2;
 class Authorization implements MiddlewareInterface
 {
     /**
+     * @var string
+     */
+    const TOKEN_ATTRIBUTE_KEY = 'oauth2-token';
+
+    /**
      * OAuth2 Server
      *
      * @var OAuth2\Server
@@ -70,8 +75,9 @@ class Authorization implements MiddlewareInterface
         $oauth2Request = RequestBridge::toOAuth2($request);
         foreach ($this->scopes as $scope) {
             if ($this->server->verifyResourceRequest($oauth2Request, null, $scope)) {
-                $this->setToken($this->server->getResourceController()->getToken());
-                return $next($request, $response);
+                $token = $this->server->getResourceController()->getToken();
+                $this->setToken($token);
+                return $next($request->withAttribute(self::TOKEN_ATTRIBUTE_KEY, $token), $response);
             }
         }
 
