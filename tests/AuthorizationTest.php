@@ -836,7 +836,7 @@ final class AuthorizationTest extends \PHPUnit\Framework\TestCase
             $test,
             $token
         ) : ResponseInterface {
-            $test->assertSame($token, $request->getAttribute('oauth2-token'));
+            $test->assertSame($token, $request->getAttribute(Authorization::TOKEN_ATTRIBUTE_KEY));
             return $response;
         };
     }
@@ -846,7 +846,7 @@ final class AuthorizationTest extends \PHPUnit\Framework\TestCase
         $test = $this;
         $callback = function (ServerRequestInterface $request) use ($test, $token) : ResponseInterface {
             if ($token !== null) {
-                $test->assertSame($token, $request->getAttribute('oauth2-token'));
+                $test->assertSame($token, $request->getAttribute(Authorization::TOKEN_ATTRIBUTE_KEY));
             }
 
             return new Response();
