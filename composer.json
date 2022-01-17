@@ -13,19 +13,24 @@
     "config" : {
         "sort-packages": true
     },
+    "repositories": [
+      {
+          "type": "vcs",
+          "url": "https://github.com/tchapi/slim-oauth2-http"
+      }
+    ],
     "require": {
-        "php": "^5.6 || ^7.0",
+        "php": "^7.0 || ^8.0",
         "bshaffer/oauth2-server-php": "^1.9",
-        "chadicus/psr-middleware": "^1.0",
-        "chadicus/slim-oauth2-http": "^3.1",
+        "chadicus/slim-oauth2-http": "dev-next",
         "container-interop/container-interop": "^1.1",
         "psr/http-message": "^1.0"
     },
     "require-dev": {
-        "chadicus/coding-standard": "^1.3",
-        "php-coveralls/php-coveralls": "^1.0",
+        "chadicus/coding-standard": "^1.8",
+        "php-coveralls/php-coveralls": "^2.5",
         "php-di/php-di": "^5.4",
-        "phpunit/phpunit": "^5.7",
+        "phpunit/phpunit": "^8.5",
         "zendframework/zend-diactoros": ">=1.3.2"
     },
     "autoload": {

@@ -8,6 +8,7 @@ use OAuth2;
 use OAuth2\Storage;
 use Zend\Diactoros\Response;
 use Zend\Diactoros\ServerRequest;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Unit tests for the \Chadicus\Slim\OAuth2\Middleware\Authorization class.
@@ -16,7 +17,7 @@ use Zend\Diactoros\ServerRequest;
  * @covers ::<private>
  * @covers ::__construct
  */
-final class AuthorizationTest extends \PHPUnit_Framework_TestCase
+final class AuthorizationTest extends TestCase
 {
     /**
      * Verify basic behavior of __invoke()
@@ -464,13 +465,15 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
      *
      * @test
      * @covers ::__construct
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage $container does not implement ArrayAccess or contain a 'set' method
      *
      * @return void
      */
     public function constructWithInvalidContainer()
     {
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('$container does not implement ArrayAccess or contain a \'set\' method');
+
         $oauth2ServerMock = $this->getMockBuilder('\\OAuth2\\Server')->disableOriginalConstructor()->getMock();
         new Authorization($oauth2ServerMock, new \StdClass());
     }
@@ -480,13 +483,14 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
      *
      * @test
      * @covers ::__construct
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage $container does not implement ArrayAccess or contain a 'set' method
      *
      * @return void
      */
     public function constructWithPSR11Container()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('$container does not implement ArrayAccess or contain a \'set\' method');
+
         $container = $this->getMockBuilder('\\Psr\\Container\\ContainerInterface')->getMock();
         $oauth2ServerMock = $this->getMockBuilder('\\OAuth2\\Server')->disableOriginalConstructor()->getMock();
         new Authorization($oauth2ServerMock, $container);
