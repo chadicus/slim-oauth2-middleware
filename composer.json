@@ -23,7 +23,7 @@
         "php": "^7.0 || ^8.0",
         "bshaffer/oauth2-server-php": "^1.11",
         "chadicus/slim-oauth2-http": "dev-next",
-        "container-interop/container-interop": "^1.2",
+        "psr/container": "^1.0",
         "psr/http-message": "^1.0",
         "psr/http-server-handler": "^1.0",
         "psr/http-server-middleware": "^1.0"
