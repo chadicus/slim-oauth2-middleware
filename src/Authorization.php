@@ -6,12 +6,14 @@ use Chadicus\Slim\OAuth2\Http\RequestBridge;
 use Chadicus\Slim\OAuth2\Http\ResponseBridge;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use OAuth2;
 
 /**
  * Slim Middleware to handle OAuth2 Authorization.
  */
-class Authorization
+class Authorization implements MiddlewareInterface
 {
     /**
      * @var string
@@ -62,21 +64,15 @@ class Authorization
 
     /**
      * Execute this middleware.
-     *
-     * @param  ServerRequestInterface $request  The PSR7 request.
-     * @param  ResponseInterface      $response The PSR7 response.
-     * @param  callable               $next     The Next middleware.
-     *
-     * @return ResponseInterface
      */
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $oauth2Request = RequestBridge::toOAuth2($request);
         foreach ($this->scopes as $scope) {
             if ($this->server->verifyResourceRequest($oauth2Request, null, $scope)) {
                 $token = $this->server->getResourceController()->getToken();
                 $this->setToken($token);
-                return $next($request->withAttribute(self::TOKEN_ATTRIBUTE_KEY, $token), $response);
+                return $handler->handle($request->withAttribute(self::TOKEN_ATTRIBUTE_KEY, $token));
             }
         }
 

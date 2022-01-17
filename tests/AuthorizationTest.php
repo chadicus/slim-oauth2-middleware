@@ -6,9 +6,10 @@ use ArrayObject;
 use Chadicus\Slim\OAuth2\Middleware\Authorization;
 use OAuth2;
 use OAuth2\Storage;
-use Zend\Diactoros\Response;
-use Zend\Diactoros\ServerRequest;
+use Laminas\Diactoros\Response;
+use Laminas\Diactoros\ServerRequest;
 use PHPUnit\Framework\TestCase;
+use ChadicusTest\Slim\OAuth2\Middleware\Support\CallableMiddleware;
 
 /**
  * Unit tests for the \Chadicus\Slim\OAuth2\Middleware\Authorization class.
@@ -68,12 +69,12 @@ final class AuthorizationTest extends TestCase
             'scope' => null,
         ];
         $test = $this;
-        $next = function ($request, $response) use ($expectedToken, $test) {
+        $next = new CallableMiddleware(function ($request) use ($expectedToken, $test) {
             $test->assertSame($expectedToken, $request->getAttribute(Authorization::TOKEN_ATTRIBUTE_KEY));
-            return $response;
-        };
+            return new Response();
+        });
 
-        $middleware($request, new Response(), $next);
+        $middleware->process($request, $next);
 
         $this->assertSame($expectedToken, $container['token']);
     }
@@ -117,11 +118,11 @@ final class AuthorizationTest extends TestCase
 
         $middleware = new Authorization($server, new ArrayObject);
 
-        $next = function () {
-            throw new \Exception('This will not get executed');
-        };
+        $next = new CallableMiddleware(function ($request) {
+            throw new \Exception('this will not get executed');
+        });
 
-        $response = $middleware($request, new Response(), $next);
+        $response = $middleware->process($request, $next);
 
         $this->assertSame(401, $response->getStatusCode());
         $this->assertSame(
@@ -180,12 +181,12 @@ final class AuthorizationTest extends TestCase
             'scope' => 'allowFoo anotherScope',
         ];
         $test = $this;
-        $next = function ($request, $response) use ($expectedToken, $test) {
+        $next = new CallableMiddleware(function ($request) use ($expectedToken, $test) {
             $test->assertSame($expectedToken, $request->getAttribute(Authorization::TOKEN_ATTRIBUTE_KEY));
-            return $response;
-        };
+            return new Response();
+        });
 
-        $response = $middleware->withRequiredScope(['allowFoo'])->__invoke($request, new Response(), $next);
+        $response = $middleware->withRequiredScope(['allowFoo'])->process($request, $next);
 
         $this->assertSame(200, $response->getStatusCode());
         $this->assertSame($expectedToken , $container['token']);
@@ -231,11 +232,11 @@ final class AuthorizationTest extends TestCase
 
         $middleware = new Authorization($server, new ArrayObject(), ['allowFoo']);
 
-        $next = function ($request, $response) {
-            throw new \Exception('This will not get executed');
-        };
+        $next = new CallableMiddleware(function ($request) {
+            throw new \Exception('this will not get executed');
+        });
 
-        $response = $middleware($request, new Response(), $next);
+        $response = $middleware->process($request, $next);
 
         $this->assertSame(403, $response->getStatusCode());
         $this->assertSame(
@@ -271,11 +272,11 @@ final class AuthorizationTest extends TestCase
 
         $middleware = new Authorization($server, new ArrayObject());
 
-        $next = function ($request, $response) {
-            throw new \Exception('This will not get executed');
-        };
+        $next = new CallableMiddleware(function ($request) {
+            throw new \Exception('this will not get executed');
+        });
 
-        $response = $middleware($request, new Response(), $next);
+        $response = $middleware->process($request, $next);
 
         $this->assertSame(401, $response->getStatusCode());
     }
@@ -329,12 +330,12 @@ final class AuthorizationTest extends TestCase
             'scope' => 'basicUser withPermission anExtraScope',
         ];
         $test = $this;
-        $next = function ($request, $response) use ($expectedToken, $test) {
+        $next = new CallableMiddleware(function ($request) use ($expectedToken, $test) {
             $test->assertSame($expectedToken, $request->getAttribute(Authorization::TOKEN_ATTRIBUTE_KEY));
-            return $response;
-        };
+            return new Response();
+        });
 
-        $response = $middleware($request, new Response(), $next);
+        $response = $middleware->process($request, $next);
         $this->assertSame(200, $response->getStatusCode());
         $this->assertSame($expectedToken, $container['token']);
     }
@@ -388,12 +389,12 @@ final class AuthorizationTest extends TestCase
             'scope' => null,
         ];
         $test = $this;
-        $next = function ($request, $response) use ($expectedToken, $test) {
+        $next = new CallableMiddleware(function ($request) use ($expectedToken, $test) {
             $test->assertSame($expectedToken, $request->getAttribute(Authorization::TOKEN_ATTRIBUTE_KEY));
-            return $response;
-        };
+            return new Response();
+        });
 
-        $middleware($request, new Response(), $next);
+        $middleware->process($request, $next);
 
         $this->assertSame($expectedToken , $container['token']);
     }
@@ -424,11 +425,11 @@ final class AuthorizationTest extends TestCase
 
         $middleware = new Authorization($server, new ArrayObject());
 
-        $next = function ($request, $response) {
-            throw new \Exception('This will not get executed');
-        };
+        $next = new CallableMiddleware(function ($request) {
+            throw new \Exception('this will not get executed');
+        });
 
-        $response = $middleware($request, new Response(), $next);
+        $response = $middleware->process($request, $next);
 
         $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
     }
@@ -452,11 +453,11 @@ final class AuthorizationTest extends TestCase
         );
 
         $middleware = new Authorization($oauth2ServerMock, new ArrayObject());
-        $next = function ($request, $response) {
-            throw new \Exception('This will not get executed');
-        };
+        $next = new CallableMiddleware(function ($request) {
+            throw new \Exception('this will not get executed');
+        });
 
-        $response = $middleware(new ServerRequest(), new Response(), $next);
+        $response = $middleware->process(new ServerRequest(), $next);
         $this->assertSame('text/html', $response->getHeaderLine('Content-Type'));
     }
 
@@ -545,12 +546,12 @@ final class AuthorizationTest extends TestCase
             'scope' => null,
         ];
         $test = $this;
-        $next = function ($request, $response) use ($expectedToken, $test) {
+        $next = new CallableMiddleware(function ($request) use ($expectedToken, $test) {
             $test->assertSame($expectedToken, $request->getAttribute(Authorization::TOKEN_ATTRIBUTE_KEY));
-            return $response;
-        };
+            return new Response();
+        });
 
-        $middleware($request, new Response(), $next);
+        $middleware->process($request, $next);
 
         $this->assertSame($expectedToken, $container->get('token'));
     }
