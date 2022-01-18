@@ -59,7 +59,7 @@ final class AuthorizationTest extends TestCase
 
         $container = new ArrayObject();
 
-        $middleware = new Authorization($server, $container);
+        $middleware = new Authorization($server);
 
         $expectedToken = [
             'access_token' => 'atokenvalue',
@@ -75,8 +75,6 @@ final class AuthorizationTest extends TestCase
         });
 
         $middleware->process($request, $next);
-
-        $this->assertSame($expectedToken, $container['token']);
     }
 
     /**
@@ -116,7 +114,7 @@ final class AuthorizationTest extends TestCase
         $headers = ['Authorization' => ['Bearer atokenvalue']];
         $request = new ServerRequest([], [], $uri, 'PATCH', 'php://input', $headers);
 
-        $middleware = new Authorization($server, new ArrayObject);
+        $middleware = new Authorization($server);
 
         $next = new CallableMiddleware(function ($request) {
             throw new \Exception('this will not get executed');
@@ -171,7 +169,7 @@ final class AuthorizationTest extends TestCase
 
         $container = new ArrayObject();
 
-        $middleware = new Authorization($server, $container);
+        $middleware = new Authorization($server);
 
         $expectedToken = [
             'access_token' => 'atokenvalue',
@@ -189,7 +187,6 @@ final class AuthorizationTest extends TestCase
         $response = $middleware->withRequiredScope(['allowFoo'])->process($request, $next);
 
         $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame($expectedToken , $container['token']);
     }
 
     /**
@@ -230,7 +227,7 @@ final class AuthorizationTest extends TestCase
         $headers = ['Authorization' => ['Bearer atokenvalue']];
         $request = new ServerRequest([], [], $uri, 'PATCH', 'php://input', $headers);
 
-        $middleware = new Authorization($server, new ArrayObject(), ['allowFoo']);
+        $middleware = new Authorization($server, ['allowFoo']);
 
         $next = new CallableMiddleware(function ($request) {
             throw new \Exception('this will not get executed');
@@ -270,7 +267,7 @@ final class AuthorizationTest extends TestCase
         $uri = 'localhost:8888/foos';
         $request = new ServerRequest([], [], $uri, 'PATCH', 'php://input', []);
 
-        $middleware = new Authorization($server, new ArrayObject());
+        $middleware = new Authorization($server);
 
         $next = new CallableMiddleware(function ($request) {
             throw new \Exception('this will not get executed');
@@ -320,7 +317,7 @@ final class AuthorizationTest extends TestCase
 
         $container = new ArrayObject();
 
-        $middleware = new Authorization($server, $container, ['superUser', ['basicUser', 'withPermission']]);
+        $middleware = new Authorization($server, ['superUser', ['basicUser', 'withPermission']]);
 
         $expectedToken = [
             'access_token' => 'atokenvalue',
@@ -337,7 +334,6 @@ final class AuthorizationTest extends TestCase
 
         $response = $middleware->process($request, $next);
         $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame($expectedToken, $container['token']);
     }
 
     /**
@@ -379,7 +375,7 @@ final class AuthorizationTest extends TestCase
 
         $container = new ArrayObject();
 
-        $middleware = new Authorization($server, $container, []);
+        $middleware = new Authorization($server, []);
 
         $expectedToken = [
             'access_token' => 'atokenvalue',
@@ -395,8 +391,6 @@ final class AuthorizationTest extends TestCase
         });
 
         $middleware->process($request, $next);
-
-        $this->assertSame($expectedToken , $container['token']);
     }
 
     /**
@@ -423,7 +417,7 @@ final class AuthorizationTest extends TestCase
         $uri = 'localhost:8888/foos';
         $request = new ServerRequest([], [], $uri, 'PATCH', 'php://input', []);
 
-        $middleware = new Authorization($server, new ArrayObject());
+        $middleware = new Authorization($server);
 
         $next = new CallableMiddleware(function ($request) {
             throw new \Exception('this will not get executed');
@@ -452,107 +446,12 @@ final class AuthorizationTest extends TestCase
             new OAuth2\Response([], 400, ['Content-Type' => 'text/html'])
         );
 
-        $middleware = new Authorization($oauth2ServerMock, new ArrayObject());
+        $middleware = new Authorization($oauth2ServerMock);
         $next = new CallableMiddleware(function ($request) {
             throw new \Exception('this will not get executed');
         });
 
         $response = $middleware->process(new ServerRequest(), $next);
         $this->assertSame('text/html', $response->getHeaderLine('Content-Type'));
-    }
-
-    /**
-     * Ensure $container must be an instance of ArrayAccess or ContainerInterface.
-     *
-     * @test
-     * @covers ::__construct
-     *
-     * @return void
-     */
-    public function constructWithInvalidContainer()
-    {
-
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('$container does not implement ArrayAccess or contain a \'set\' method');
-
-        $oauth2ServerMock = $this->getMockBuilder('\\OAuth2\\Server')->disableOriginalConstructor()->getMock();
-        new Authorization($oauth2ServerMock, new \StdClass());
-    }
-
-    /**
-     * Verify middleware cannot be constructed with a pure PSR-11 container.
-     *
-     * @test
-     * @covers ::__construct
-     *
-     * @return void
-     */
-    public function constructWithPSR11Container()
-    {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('$container does not implement ArrayAccess or contain a \'set\' method');
-
-        $container = $this->getMockBuilder('\\Psr\\Container\\ContainerInterface')->getMock();
-        $oauth2ServerMock = $this->getMockBuilder('\\OAuth2\\Server')->disableOriginalConstructor()->getMock();
-        new Authorization($oauth2ServerMock, $container);
-    }
-
-    /**
-     * Verify middleware can use interop container.
-     *
-     * @test
-     * @covers ::__invoke
-     *
-     * @return void
-     */
-    public function invokeWithInteropContainer()
-    {
-        $storage = new Storage\Memory(
-            [
-                'access_tokens' => [
-                    'atokenvalue' => [
-                        'access_token' => 'atokenvalue',
-                        'client_id' => 'a client id',
-                        'user_id' => 'a user id',
-                        'expires' => 99999999900,
-                        'scope' => null,
-                    ],
-                ],
-            ]
-        );
-
-        $server = new OAuth2\Server(
-            $storage,
-            [
-                'enforce_state' => true,
-                'allow_implicit' => false,
-                'access_lifetime' => 3600
-            ]
-        );
-
-        $uri = 'localhost:8888/foos';
-        $headers = ['Authorization' => ['Bearer atokenvalue']];
-        $request = new ServerRequest([], [], $uri, 'PATCH', 'php://input', $headers);
-
-        $container = (new \DI\ContainerBuilder())->build();
-
-        $middleware = new Authorization($server, $container);
-
-        $expectedToken = [
-            'access_token' => 'atokenvalue',
-            'client_id' => 'a client id',
-            'user_id' => 'a user id',
-            'expires' => 99999999900,
-            'scope' => null,
-        ];
-        $test = $this;
-        $next = new CallableMiddleware(function ($request) use ($expectedToken, $test) {
-            $test->assertSame($expectedToken, $request->getAttribute(Authorization::TOKEN_ATTRIBUTE_KEY));
-            return new Response();
-        });
-
-        $middleware->process($request, $next);
-
-        $this->assertSame($expectedToken, $container->get('token'));
     }
 }
