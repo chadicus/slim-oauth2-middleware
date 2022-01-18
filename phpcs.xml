@@ -2,5 +2,5 @@
 <ruleset name="PHP_CodeSniffer">
     <file>.</file>
     <exclude-pattern>*/vendor/*</exclude-pattern>
-    <rule ref="PSR2"></rule>
+    <rule ref="PSR2"/>
 </ruleset>
