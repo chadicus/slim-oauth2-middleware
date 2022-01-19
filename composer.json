@@ -20,7 +20,7 @@
       }
     ],
     "require": {
-        "php": "^7.0 || ^8.0",
+        "php": "^7.4 || ^8.0",
         "bshaffer/oauth2-server-php": "^1.11",
         "chadicus/slim-oauth2-http": "dev-next",
         "psr/http-message": "^1.0",
