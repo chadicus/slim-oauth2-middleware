@@ -42,7 +42,9 @@ composer install
 ./vendor/bin/phpunit
 ./vendor/bin/phpcs
 ```
-
+## Community
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/slim-oauth2/Lobby#)
+ 
 ## Example Usage
 
 Simple example for using the authorization middleware.
