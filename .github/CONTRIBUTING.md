@@ -15,8 +15,8 @@ Code changes should be sent through [GitHub Pull Requests](https://github.com/ch
 
 While the build does not enforce 100% [PHPUnit](http://www.phpunit.de) code coverage, it will not allow coverage to drop below its current percentage.
 
-The build will also not allow any errors for the [coding standard](http://chadicus.github.io/coding-standard/)
+The build will also not allow any errors for the [coding standard](https://www.php-fig.org/psr/psr-2/)
 
 ```sh
-./vendor/bin/phpcs --standard=./vendor/chadicus/coding-standard/Chadicus src tests
+./vendor/bin/phpcs
 ```

@@ -3,5 +3,5 @@
     <file>.</file>
     <exclude-pattern>*/vendor/*</exclude-pattern>
     <arg value="p" />
-    <rule ref="./vendor/chadicus/coding-standard/Chadicus"/>
+    <rule ref="PSR2" />
 </ruleset>

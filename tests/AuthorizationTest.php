@@ -187,7 +187,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $response = $middleware->withRequiredScope(['allowFoo'])->__invoke($request, new Response(), $next);
 
         $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame($expectedToken , $container['token']);
+        $this->assertSame($expectedToken, $container['token']);
     }
 
     /**
@@ -394,7 +394,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
 
         $middleware($request, new Response(), $next);
 
-        $this->assertSame($expectedToken , $container['token']);
+        $this->assertSame($expectedToken, $container['token']);
     }
 
     /**
