@@ -14,7 +14,7 @@
         "sort-packages": true
     },
     "require": {
-        "php": "^5.6 || ^7.0",
+        "php": "^5.6 || ^7.0 || ^8.0",
         "bshaffer/oauth2-server-php": "^1.9",
         "chadicus/psr-middleware": "^1.0",
         "chadicus/slim-oauth2-http": "^3.2",
