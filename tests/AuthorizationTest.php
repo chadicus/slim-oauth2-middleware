@@ -8,6 +8,8 @@ use Laminas\Diactoros\Response;
 use Laminas\Diactoros\ServerRequest;
 use OAuth2;
 use OAuth2\Storage;
+use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
 
 /**
  * Unit tests for the \Chadicus\Slim\OAuth2\Middleware\Authorization class.
@@ -16,7 +18,7 @@ use OAuth2\Storage;
  * @covers ::<private>
  * @covers ::__construct
  */
-final class AuthorizationTest extends \PHPUnit_Framework_TestCase
+final class AuthorizationTest extends TestCase
 {
     /**
      * Verify basic behavior of __invoke()
@@ -464,14 +466,14 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
      *
      * @test
      * @covers ::__construct
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage $container does not implement ArrayAccess or contain a 'set' method
      *
      * @return void
      */
     public function constructWithInvalidContainer()
     {
-        $oauth2ServerMock = $this->getMockBuilder('\\OAuth2\\Server')->disableOriginalConstructor()->getMock();
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("\$container does not implement ArrayAccess or contain a 'set' method");
+        $oauth2ServerMock = $this->getMockBuilder(OAuth2\Server::class)->disableOriginalConstructor()->getMock();
         new Authorization($oauth2ServerMock, new \StdClass());
     }
 
@@ -480,15 +482,15 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
      *
      * @test
      * @covers ::__construct
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage $container does not implement ArrayAccess or contain a 'set' method
      *
      * @return void
      */
     public function constructWithPSR11Container()
     {
-        $container = $this->getMockBuilder('\\Psr\\Container\\ContainerInterface')->getMock();
-        $oauth2ServerMock = $this->getMockBuilder('\\OAuth2\\Server')->disableOriginalConstructor()->getMock();
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("\$container does not implement ArrayAccess or contain a 'set' method");
+        $container = $this->getMockBuilder(ContainerInterface::class)->getMock();
+        $oauth2ServerMock = $this->getMockBuilder(OAuth2\Server::class)->disableOriginalConstructor()->getMock();
         new Authorization($oauth2ServerMock, $container);
     }
 
