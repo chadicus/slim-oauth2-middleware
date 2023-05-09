@@ -35,5 +35,9 @@
     },
     "suggest": {
         "chadicus/slim-oauth2-routes": "Offers standard OAuth2 routes for slim applications"
+    },
+    "scripts": {
+        "lint": "vendor/bin/phpcs",
+        "test": "vendor/bin/phpunit"
     }
 }
