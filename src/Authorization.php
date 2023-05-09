@@ -7,7 +7,6 @@ use Chadicus\Slim\OAuth2\Http\ResponseBridge;
 use Chadicus\Psr\Middleware\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Interop\Container\ContainerInterface;
 use OAuth2;
 
 /**
@@ -15,6 +14,11 @@ use OAuth2;
  */
 class Authorization implements MiddlewareInterface
 {
+    /**
+     * @var string
+     */
+    const TOKEN_ATTRIBUTE_KEY = 'oauth2-token';
+
     /**
      * OAuth2 Server
      *
@@ -32,35 +36,28 @@ class Authorization implements MiddlewareInterface
     /**
      * Container for token.
      *
-     * @var ArrayAccess|ContainerInterface
+     * @var mixed
      */
     private $container;
 
     /**
      * Create a new instance of the Authroization middleware.
      *
-     * @param OAuth2\Server                  $server    The configured OAuth2 server.
-     * @param ArrayAccess|ContainerInterface $container A container object in which to store the token from the
-     *                                                  request.
-     * @param array                          $scopes    Scopes required for authorization. $scopes can be given as an
-     *                                                  array of arrays. OR logic will use with each grouping.
-     *                                                  Example:
-     *                                                  Given ['superUser', ['basicUser', 'aPermission']], the request
-     *                                                  will be verified if the request token has 'superUser' scope
-     *                                                  OR 'basicUser' and 'aPermission' as its scope.
+     * @param OAuth2\Server $server    The configured OAuth2 server.
+     * @param mixed         $container A container object in which to store the token from the request.
+     * @param array         $scopes    Scopes required for authorization. $scopes can be given as an
+     *                                 array of arrays. OR logic will use with each grouping.
+     *                                 Example:
+     *                                 Given ['superUser', ['basicUser', 'aPermission']], the request
+     *                                 will be verified if the request token has 'superUser' scope
+     *                                 OR 'basicUser' and 'aPermission' as its scope.
      *
      * @throws \InvalidArgumentException Thrown if $container is not an instance of ArrayAccess or ContainerInterface.
      */
     public function __construct(OAuth2\Server $server, $container, array $scopes = [])
     {
         $this->server = $server;
-        if (!is_a($container, '\\ArrayAccess') && !is_a($container, '\\Interop\\Container\\ContainerInterface')) {
-            throw new \InvalidArgumentException(
-                '$container does not implement \\ArrayAccess or \\Interop\\Container\\ContainerInterface'
-            );
-        }
-
-        $this->container = $container;
+        $this->container = $this->validateContainer($container);
         $this->scopes = $this->formatScopes($scopes);
     }
 
@@ -78,8 +75,9 @@ class Authorization implements MiddlewareInterface
         $oauth2Request = RequestBridge::toOAuth2($request);
         foreach ($this->scopes as $scope) {
             if ($this->server->verifyResourceRequest($oauth2Request, null, $scope)) {
-                $this->setToken($this->server->getResourceController()->getToken());
-                return $next($request, $response);
+                $token = $this->server->getResourceController()->getToken();
+                $this->setToken($token);
+                return $next($request->withAttribute(self::TOKEN_ATTRIBUTE_KEY, $token), $response);
             }
         }
 
@@ -146,5 +144,18 @@ class Authorization implements MiddlewareInterface
         );
 
         return $scopes;
+    }
+
+    private function validateContainer($container)
+    {
+        if (is_a($container, ArrayAccess::class)) {
+            return $container;
+        }
+
+        if (method_exists($container, 'set')) {
+            return $container;
+        }
+
+        throw new \InvalidArgumentException("\$container does not implement ArrayAccess or contain a 'set' method");
     }
 }

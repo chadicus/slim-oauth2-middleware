@@ -59,22 +59,22 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
 
         $middleware = new Authorization($server, $container);
 
-        $next = function ($request, $response) {
+        $expectedToken = [
+            'access_token' => 'atokenvalue',
+            'client_id' => 'a client id',
+            'user_id' => 'a user id',
+            'expires' => 99999999900,
+            'scope' => null,
+        ];
+        $test = $this;
+        $next = function ($request, $response) use ($expectedToken, $test) {
+            $test->assertSame($expectedToken, $request->getAttribute(Authorization::TOKEN_ATTRIBUTE_KEY));
             return $response;
         };
 
         $middleware($request, new Response(), $next);
 
-        $this->assertSame(
-            [
-                'access_token' => 'atokenvalue',
-                'client_id' => 'a client id',
-                'user_id' => 'a user id',
-                'expires' => 99999999900,
-                'scope' => null,
-            ],
-            $container['token']
-        );
+        $this->assertSame($expectedToken, $container['token']);
     }
 
     /**
@@ -171,23 +171,23 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
 
         $middleware = new Authorization($server, $container);
 
-        $next = function ($request, $response) {
+        $expectedToken = [
+            'access_token' => 'atokenvalue',
+            'client_id' => 'a client id',
+            'user_id' => 'a user id',
+            'expires' => 99999999900,
+            'scope' => 'allowFoo anotherScope',
+        ];
+        $test = $this;
+        $next = function ($request, $response) use ($expectedToken, $test) {
+            $test->assertSame($expectedToken, $request->getAttribute(Authorization::TOKEN_ATTRIBUTE_KEY));
             return $response;
         };
 
         $response = $middleware->withRequiredScope(['allowFoo'])->__invoke($request, new Response(), $next);
 
         $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame(
-            [
-                'access_token' => 'atokenvalue',
-                'client_id' => 'a client id',
-                'user_id' => 'a user id',
-                'expires' => 99999999900,
-                'scope' => 'allowFoo anotherScope',
-            ],
-            $container['token']
-        );
+        $this->assertSame($expectedToken , $container['token']);
     }
 
     /**
@@ -320,23 +320,22 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
 
         $middleware = new Authorization($server, $container, ['superUser', ['basicUser', 'withPermission']]);
 
-        $next = function ($request, $response) {
+        $expectedToken = [
+            'access_token' => 'atokenvalue',
+            'client_id' => 'a client id',
+            'user_id' => 'a user id',
+            'expires' => 99999999900,
+            'scope' => 'basicUser withPermission anExtraScope',
+        ];
+        $test = $this;
+        $next = function ($request, $response) use ($expectedToken, $test) {
+            $test->assertSame($expectedToken, $request->getAttribute(Authorization::TOKEN_ATTRIBUTE_KEY));
             return $response;
         };
 
         $response = $middleware($request, new Response(), $next);
-
         $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame(
-            [
-                'access_token' => 'atokenvalue',
-                'client_id' => 'a client id',
-                'user_id' => 'a user id',
-                'expires' => 99999999900,
-                'scope' => 'basicUser withPermission anExtraScope',
-            ],
-            $container['token']
-        );
+        $this->assertSame($expectedToken, $container['token']);
     }
 
     /**
@@ -380,22 +379,22 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
 
         $middleware = new Authorization($server, $container, []);
 
-        $next = function ($request, $response) {
+        $expectedToken = [
+            'access_token' => 'atokenvalue',
+            'client_id' => 'a client id',
+            'user_id' => 'a user id',
+            'expires' => 99999999900,
+            'scope' => null,
+        ];
+        $test = $this;
+        $next = function ($request, $response) use ($expectedToken, $test) {
+            $test->assertSame($expectedToken, $request->getAttribute(Authorization::TOKEN_ATTRIBUTE_KEY));
             return $response;
         };
 
         $middleware($request, new Response(), $next);
 
-        $this->assertSame(
-            [
-                'access_token' => 'atokenvalue',
-                'client_id' => 'a client id',
-                'user_id' => 'a user id',
-                'expires' => 99999999900,
-                'scope' => null,
-            ],
-            $container['token']
-        );
+        $this->assertSame($expectedToken , $container['token']);
     }
 
     /**
@@ -466,7 +465,7 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
      * @test
      * @covers ::__construct
      * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage $container does not implement \ArrayAccess or \Interop\Container\ContainerInterface
+     * @expectedExceptionMessage $container does not implement ArrayAccess or contain a 'set' method
      *
      * @return void
      */
@@ -474,6 +473,23 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
     {
         $oauth2ServerMock = $this->getMockBuilder('\\OAuth2\\Server')->disableOriginalConstructor()->getMock();
         new Authorization($oauth2ServerMock, new \StdClass());
+    }
+
+    /**
+     * Verify middleware cannot be constructed with a pure PSR-11 container.
+     *
+     * @test
+     * @covers ::__construct
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage $container does not implement ArrayAccess or contain a 'set' method
+     *
+     * @return void
+     */
+    public function constructWithPSR11Container()
+    {
+        $container = $this->getMockBuilder('\\Psr\\Container\\ContainerInterface')->getMock();
+        $oauth2ServerMock = $this->getMockBuilder('\\OAuth2\\Server')->disableOriginalConstructor()->getMock();
+        new Authorization($oauth2ServerMock, $container);
     }
 
     /**
@@ -517,21 +533,21 @@ final class AuthorizationTest extends \PHPUnit_Framework_TestCase
 
         $middleware = new Authorization($server, $container);
 
-        $next = function ($request, $response) {
+        $expectedToken = [
+            'access_token' => 'atokenvalue',
+            'client_id' => 'a client id',
+            'user_id' => 'a user id',
+            'expires' => 99999999900,
+            'scope' => null,
+        ];
+        $test = $this;
+        $next = function ($request, $response) use ($expectedToken, $test) {
+            $test->assertSame($expectedToken, $request->getAttribute(Authorization::TOKEN_ATTRIBUTE_KEY));
             return $response;
         };
 
         $middleware($request, new Response(), $next);
 
-        $this->assertSame(
-            [
-                'access_token' => 'atokenvalue',
-                'client_id' => 'a client id',
-                'user_id' => 'a user id',
-                'expires' => 99999999900,
-                'scope' => null,
-            ],
-            $container->get('token')
-        );
+        $this->assertSame($expectedToken, $container->get('token'));
     }
 }
